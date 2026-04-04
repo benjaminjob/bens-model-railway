@@ -27,9 +27,7 @@ export default function DisclaimerBanner() {
 
   // Update the CSS variable that controls body padding when visibility changes
   useEffect(() => {
-    if (!visible) {
-      document.documentElement.style.setProperty("--banner-h", "0px");
-    }
+    document.documentElement.style.setProperty("--banner-h", visible ? "48px" : "0px");
   }, [visible]);
 
   const handleDismiss = () => {

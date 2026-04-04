@@ -457,7 +457,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
     window.addEventListener('scroll', updateSvgRect, { passive: true });
 
     // Start animation and show train via RAF callback to avoid direct setState in effect body
-    animFrame.current = requestAnimationFrame(() => { setVisible(true); animate(); });
+    animFrame.current = requestAnimationFrame(() => { setVisible(true); animFrame.current = requestAnimationFrame(animate); });
 
     window.addEventListener("mousemove", handleMove, { passive: true });
     window.addEventListener("touchmove", handleMove, { passive: true });
