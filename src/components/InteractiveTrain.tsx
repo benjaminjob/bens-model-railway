@@ -291,10 +291,10 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   const isMutedRef = useRef(isMuted);
   const trainAngleRef = useRef(0);
   const trainPosRef = useRef({ x: 0, y: 0 });
-  // Keep isMutedRef in sync after each render (must be done in an effect, not during render)
+  // Keep isMutedRef in sync whenever isMuted changes (must be done in an effect, not during render)
   useEffect(() => {
     isMutedRef.current = isMuted;
-  });
+  }, [isMuted]);
 
   // Signal positions on the default oval layout
   const SIGNAL_POSITIONS = [

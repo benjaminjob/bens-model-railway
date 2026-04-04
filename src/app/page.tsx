@@ -488,25 +488,30 @@ export default function Home() {
   const { isMuted, setIsMuted, hasDecided } = useSound();
   // Initialise from context so we don't call setState inside an effect
   const [showConsent, setShowConsent] = useState(() => !hasDecided);
-  // Keep a ref so the mount effect can read the latest isMuted without re-running
+  // Keep a ref so the sound effect can read the latest isMuted without adding it to deps
   const isMutedRef = useRef(isMuted);
-  isMutedRef.current = isMuted;
-
   useEffect(() => {
-    // Play page-load sound if the user has already made a sound decision
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
+
+  // Play page-load sound once on mount if the user has already made a sound decision
+  useEffect(() => {
     if (hasDecided && !isMutedRef.current) {
       const audio = new Audio("/sounds/page-load.mp3");
       audio.volume = 0.2;
       audio.play().catch(() => {});
     }
+  }, [hasDecided]); // isMuted intentionally read via ref to avoid restarting the effect
+
+  // Set up section intersection observer once on mount
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => { entries.forEach((entry) => { if (entry.isIntersecting) setActiveSection(entry.target.id); }); },
       { threshold: 0.25, rootMargin: "-100px 0px -55% 0px" }
     );
     document.querySelectorAll("section[id]").forEach((s) => observer.observe(s));
     return () => observer.disconnect();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally run once on mount only
+  }, []);
 
   const handleConsentPlay = () => {
     setShowConsent(false);
