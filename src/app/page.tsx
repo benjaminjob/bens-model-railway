@@ -128,7 +128,7 @@ function Nav({ active, isMuted, onToggleMute }: { active: string; isMuted: boole
         <motion.div initial={{ opacity: 0, y: -20, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -10, scale: 0.96 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
           className="absolute top-[calc(100%+16px)] left-4 right-4 md:hidden">
-          <div className="bg-railway-bg/95 backdrop-blur-2xl border border-railway-border rounded-2xl shadow-2xl shadow-black/60 overflow-hidden">
+          <div className="bg-gray-950/98 border border-railway-border rounded-2xl shadow-2xl shadow-black/80 overflow-hidden">
             {/* Header */}
             <div className="px-5 py-4 border-b border-railway-border/50 flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-widest text-railway-muted">Navigation</span>

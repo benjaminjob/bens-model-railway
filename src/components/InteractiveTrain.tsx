@@ -282,7 +282,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   const [trail, setTrail] = useState<Array<{ x: number; y: number; id: number }>>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [trainAngle, setTrainAngle] = useState(0);
-  const [trainScaleX, setTrainScaleX] = useState(-1);
+  const [trainScaleX, setTrainScaleX] = useState(1);
   const [smokeParticles, setSmokeParticles] = useState<Array<{ id: number; x: number; y: number; age: number }>>([]);
   const [activeSignals, setActiveSignals] = useState<Set<string>>(new Set());
   const smokeId = useRef(0);
@@ -404,8 +404,8 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
       // direction — add 180° so the engine faces forward.
       let angle = Math.atan2(dy, dx) * (180 / Math.PI);
       if (isRev) angle += 180;
-      // flipX mirrors the SVG horizontally — 1 means no mirror
-      const flipX = 1;
+      // flipX mirrors the SVG horizontally — flip when going left so train faces correct direction
+      const flipX = (angle > 90 || angle < -90) ? -1 : 1;
       const scaleX = svgRect.width / 800;
       const scaleY = svgRect.height / 400;
       const pixelX = point.x * scaleX;
