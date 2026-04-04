@@ -123,6 +123,7 @@ function Nav({ active }: { active: string }) {
     { id: "layout", label: "The Layout" },
     { id: "journal", label: "Build Journal" },
     { id: "renders", label: "3D Renders" },
+    { id: "real-railways", label: "Real Railways" },
     { id: "software", label: "Software" },
   ];
 
@@ -507,14 +508,22 @@ function Footer() {
         <p className="text-railway-muted text-sm mb-4">
           A life-size railway in miniature · © 2026
         </p>
-        <a
-          href="https://github.com/benjaminjob1/bens-model-railway"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-railway-muted hover:text-railway-accent text-sm transition-colors"
-        >
-          View on GitHub →
-        </a>
+        <div className="flex flex-wrap justify-center gap-4 mb-4">
+          <a
+            href="/real-railways"
+            className="text-railway-muted hover:text-railway-accent text-sm transition-colors"
+          >
+            Real Railways (Inspiration) →
+          </a>
+          <a
+            href="https://github.com/benjaminjob1/bens-model-railway"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-railway-muted hover:text-railway-accent text-sm transition-colors"
+          >
+            GitHub →
+          </a>
+        </div>
       </div>
     </footer>
   );
