@@ -440,14 +440,12 @@ export default function RealRailways() {
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-railway-bg overflow-hidden">
-      {/* Background train & track - behind everything */}
-      <div className="absolute inset-0 pointer-events-none">
-        <InteractiveTrain />
-      </div>
+    <main className="relative min-h-screen bg-railway-bg">
+      {/* Background train & track — behind everything */}
+      <InteractiveTrain />
 
-      {/* Page header */}
-      <div className="bg-railway-surface border-b border-railway-border py-16 px-4">
+      {/* Page header — above fixed track background, below fixed selector */}
+      <div className="relative z-10 bg-railway-surface border-b border-railway-border pt-24 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
           <p className="text-railway-accent text-sm tracking-widest uppercase mb-3 font-medium">
             Inspiration

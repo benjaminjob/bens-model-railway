@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import InteractiveTrain from "@/components/InteractiveTrain";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 
 const TRACK_PLAN_SVG = `<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
@@ -467,6 +468,7 @@ export default function Home() {
   }, []);
   return (
     <main className="relative z-10">
+      <InteractiveTrain />
       <Nav active={activeSection} />
       <Hero />
       <TheLayout />

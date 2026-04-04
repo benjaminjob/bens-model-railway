@@ -14,149 +14,239 @@ const MM = 0.2; // 1 unit = 5mm real → 1mm = 0.2 SVG units
 const TRACK_GAP = Math.round(67 * MM); // 13 units
 
 // ──────────────────────────────────────────────
-// LAYOUT 1: Simple Oval with Passing Loop
+
 // ──────────────────────────────────────────────
-function makeOval(ox: number, oy: number) {
-  const outerRX = 220, outerRY = 90;
+// LAYOUT 1: Double Oval with Passing Loop + Branch
+// ──────────────────────────────────────────────
+function makeDoubleOval(ox: number, oy: number) {
+  const outerRX = 215, outerRY = 90;
   const innerRX = outerRX - TRACK_GAP * 1.5, innerRY = outerRY - 10;
-  
+  // Branch extends from right side of oval
+  const bx = ox + outerRX, by = oy;
+
   const parts = [
-    { path: `M ${ox - outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox + outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox - outerRX} ${oy}`, trackWidth: 20, type: 'main' as const },
+    // CLOSED main oval (outer)
+    { path: `M ${ox - outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox + outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox - outerRX} ${oy}`, trackWidth: 22, type: 'main' as const },
+    // CLOSED inner passing loop
     { path: `M ${ox - innerRX} ${oy} A ${innerRX} ${innerRY} 0 0 1 ${ox + innerRX} ${oy} A ${innerRX} ${innerRY} 0 0 1 ${ox - innerRX} ${oy}`, trackWidth: 16, type: 'main' as const },
+    // SUBSTANTIAL BRANCH — long extension from right side going up and right
+    { path: `M ${bx} ${by} L ${bx + 80} ${by - 20} A 50 40 0 0 1 ${bx + 140} ${by - 55} L ${bx + 140} ${by - 100}`, trackWidth: 15, type: 'branch' as const },
+    // Siding off branch
+    { path: `M ${bx + 90} ${by - 35} L ${bx + 90} ${by - 70}`, trackWidth: 12, type: 'siding' as const },
+    { path: `M ${bx + 115} ${by - 50} L ${bx + 145} ${by - 50}`, trackWidth: 12, type: 'yard' as const },
   ];
-  const stations = [{ x: ox, y: oy - outerRY - 8, label: 'PASSING LOOP' }];
-  return { parts, stations, name: "Oval with Passing Loop", desc: "Classic two-track oval with inner passing loop", viewBox: "0 0 800 400" };
+  const stations = [
+    { x: ox, y: oy - outerRY - 8, label: 'PASSING LOOP' },
+    { x: bx + 70, y: by - 55, label: 'BRANCH HALT' },
+  ];
+  return { parts, stations, name: "Double Oval + Branch", desc: "Two-track oval with long branch extension", viewBox: "0 0 800 400" };
 }
 
 // ──────────────────────────────────────────────
-// LAYOUT 2: Terminus Station
+// LAYOUT 2: Terminus with Approach Loop + Branch
 // ──────────────────────────────────────────────
 function makeTerminus(ox: number, oy: number) {
-  const R3 = 101;
-  const throatX = ox - R3 - 20;
-  const platY = oy - 60;
-  
-  const parts = [
-    { path: `M ${throatX} ${oy} A ${R3} ${R3 * 0.7} 0 0 1 ${ox + R3} ${oy} A ${R3} ${R3 * 0.7} 0 0 1 ${throatX} ${oy}`, trackWidth: 18, type: 'main' as const },
-    { path: `M ${throatX} ${oy} L ${throatX - 70} ${oy} L ${throatX - 70} ${platY + 20}`, trackWidth: 18, type: 'main' as const },
-    { path: `M ${throatX - 70} ${platY + 10} L ${throatX - 160} ${platY + 10}`, trackWidth: 15, type: 'main' as const },
-    { path: `M ${throatX - 70} ${platY + 30} L ${throatX - 160} ${platY + 30}`, trackWidth: 15, type: 'main' as const },
-    { path: `M ${throatX - 160} ${platY + 5} L ${throatX - 160} ${platY + 15}`, trackWidth: 15, type: 'siding' as const },
-    { path: `M ${throatX - 160} ${platY + 25} L ${throatX - 160} ${platY + 35}`, trackWidth: 15, type: 'siding' as const },
-    { path: `M ${throatX - 70} ${platY + 30} Q ${throatX - 50} ${oy + 20} ${throatX} ${oy}`, trackWidth: 18, type: 'main' as const },
-  ];
-  const stations = [{ x: throatX - 115, y: platY + 20, label: 'TERMINUS' }];
-  return { parts, stations, name: "Terminus Station", desc: "Station at end of line — trains reverse direction", viewBox: "0 0 800 400", platformRect: { x: throatX - 158, y: platY + 3, w: 86, h: 38 } };
-}
+  const outerRX = 180, outerRY = 75;
+  // A proper CLOSED approach oval
+  const approachBX = ox - outerRX, approachBY = oy;
+  // Branch from top of approach oval going to terminus area
+  const termX = ox - 220, termY = oy - 30;
 
-// ──────────────────────────────────────────────
-// LAYOUT 3: Branch Line
-// ──────────────────────────────────────────────
-function makeBranch(ox: number, oy: number) {
-  const outerRX = 190, outerRY = 82;
-  const bx = ox + outerRX, by = oy - outerRY;
-  
   const parts = [
+    // CLOSED approach oval
     { path: `M ${ox - outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox + outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox - outerRX} ${oy}`, trackWidth: 20, type: 'main' as const },
-    { path: `M ${ox - outerRX + TRACK_GAP} ${oy} A ${outerRX - TRACK_GAP} ${outerRY - 8} 0 0 1 ${ox + outerRX - TRACK_GAP} ${oy} A ${outerRX - TRACK_GAP} ${outerRY - 8} 0 0 1 ${ox - outerRX + TRACK_GAP} ${oy}`, trackWidth: 16, type: 'main' as const },
-    { path: `M ${bx} ${by} L ${bx + 60} ${by - 50} L ${bx + 60} ${by - 110}`, trackWidth: 14, type: 'branch' as const },
-    { path: `M ${bx + 60} ${by - 110} L ${bx + 60} ${by - 80}`, trackWidth: 14, type: 'siding' as const },
-    { path: `M ${bx + 40} ${by - 90} L ${bx + 80} ${by - 90}`, trackWidth: 12, type: 'yard' as const },
+    // Branch: from left of approach oval going to terminus platform
+    { path: `M ${approachBX} ${approachBY} L ${approachBX - 60} ${approachBY - 20} L ${approachBX - 60} ${termY + 10} L ${termX + 60} ${termY + 10}`, trackWidth: 16, type: 'branch' as const },
+    // Terminus platform tracks
+    { path: `M ${termX + 60} ${termY + 10} L ${termX} ${termY + 10} L ${termX} ${termY - 25}`, trackWidth: 16, type: 'siding' as const },
+    { path: `M ${termX + 60} ${termY + 28} L ${termX} ${termY + 28} L ${termX} ${termY + 48}`, trackWidth: 14, type: 'siding' as const },
+    // Return line from terminus back to approach oval
+    { path: `M ${termX} ${termY - 25} Q ${termX + 30} ${termY - 50} ${approachBX} ${approachBY - 50}`, trackWidth: 16, type: 'main' as const },
+    // Second platform track connection
+    { path: `M ${termX} ${termY + 48} Q ${termX + 30} ${termY + 70} ${approachBX} ${approachBY + 50}`, trackWidth: 14, type: 'siding' as const },
   ];
-  const stations = [{ x: ox, y: oy - outerRY - 8, label: 'BRANCH JUNCTION' }];
-  return { parts, stations, name: "Branch Line", desc: "Main line with branch off to terminus siding", viewBox: "0 0 800 400" };
+  const stations = [
+    { x: ox, y: oy - outerRY - 8, label: 'APPROACH LOOP' },
+    { x: (termX + termX + 60) / 2, y: termY + 20, label: 'TERMINUS' },
+  ];
+  return { parts, stations, name: "Terminus Station", desc: "Closed approach loop with terminus platforms and bay branch", viewBox: "0 0 800 400" };
 }
 
 // ──────────────────────────────────────────────
-// LAYOUT 4: Figure 8
+// LAYOUT 3: Junction with Dual Branches
+// ──────────────────────────────────────────────
+function makeJunction(ox: number, oy: number) {
+  const outerRX = 190, outerRY = 80;
+  const rbx = ox + outerRX, rby = oy;
+  const lbx = ox - outerRX, lby = oy;
+
+  const parts = [
+    // CLOSED main oval
+    { path: `M ${ox - outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox + outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox - outerRX} ${oy}`, trackWidth: 22, type: 'main' as const },
+    // Inner passing loop
+    { path: `M ${ox - outerRX + TRACK_GAP} ${oy} A ${outerRX - TRACK_GAP} ${outerRY - 8} 0 0 1 ${ox + outerRX - TRACK_GAP} ${oy} A ${outerRX - TRACK_GAP} ${outerRY - 8} 0 0 1 ${ox - outerRX + TRACK_GAP} ${oy}`, trackWidth: 16, type: 'main' as const },
+    // BRANCH A: long extension from right side going up-right
+    { path: `M ${rbx} ${rby} L ${rbx + 70} ${rby - 30} A 60 45 0 0 1 ${rbx + 140} ${rby - 70} L ${rbx + 140} ${rby - 115}`, trackWidth: 15, type: 'branch' as const },
+    // BRANCH B: extension from left side going down-left
+    { path: `M ${lbx} ${lby} L ${lbx - 70} ${lby + 30} A 60 45 0 0 0 ${lbx - 140} ${lby + 70} L ${lbx - 140} ${lby + 115}`, trackWidth: 15, type: 'branch' as const },
+    // Sidings off branch A
+    { path: `M ${rbx + 100} ${rby - 50} L ${rbx + 100} ${rby - 80}`, trackWidth: 12, type: 'siding' as const },
+    { path: `M ${rbx + 125} ${rby - 65} L ${rbx + 155} ${rby - 65}`, trackWidth: 12, type: 'yard' as const },
+    // Siding off branch B
+    { path: `M ${lbx - 100} ${lby + 50} L ${lbx - 100} ${lby + 80}`, trackWidth: 12, type: 'siding' as const },
+  ];
+  const stations = [
+    { x: ox, y: oy - outerRY - 8, label: 'MAIN JUNCTION' },
+    { x: rbx + 70, y: rby - 60, label: 'EAST BRANCH' },
+    { x: lbx - 70, y: lby + 60, label: 'WEST BRANCH' },
+  ];
+  return { parts, stations, name: "Junction Station", desc: "Main line with two substantial branch extensions", viewBox: "0 0 800 400" };
+}
+
+// ──────────────────────────────────────────────
+// LAYOUT 4: Figure 8 with Extended Branches
 // ──────────────────────────────────────────────
 function makeFigure8(ox: number, oy: number) {
-  const rX = 130, rY = 65, gap = 36;
-  
+  const rX = 130, rY = 62, gap = 38;
+  const rightX = ox + rX, leftX = ox - rX;
+
   const parts = [
-    { path: `M ${ox - rX} ${oy - gap/2} A ${rX} ${rY} 0 0 1 ${ox + rX} ${oy - gap/2} A ${rX} ${rY} 0 0 1 ${ox - rX} ${oy - gap/2}`, trackWidth: 18, type: 'main' as const },
-    { path: `M ${ox - rX} ${oy + gap/2} A ${rX} ${rY} 0 0 0 ${ox + rX} ${oy + gap/2} A ${rX} ${rY} 0 0 0 ${ox - rX} ${oy + gap/2}`, trackWidth: 18, type: 'main' as const },
+    // CLOSED upper oval
+    { path: `M ${ox - rX} ${oy - gap/2} A ${rX} ${rY} 0 0 1 ${ox + rX} ${oy - gap/2} A ${rX} ${rY} 0 0 1 ${ox - rX} ${oy - gap/2}`, trackWidth: 20, type: 'main' as const },
+    // CLOSED lower oval
+    { path: `M ${ox - rX} ${oy + gap/2} A ${rX} ${rY} 0 0 0 ${ox + rX} ${oy + gap/2} A ${rX} ${rY} 0 0 0 ${ox - rX} ${oy + gap/2}`, trackWidth: 20, type: 'main' as const },
+    // Cross connectors (figure-8 crossover)
     { path: `M ${ox - rX} ${oy - gap/2} Q ${ox - rX/2} ${oy} ${ox - rX} ${oy + gap/2}`, trackWidth: 14, type: 'branch' as const },
     { path: `M ${ox + rX} ${oy - gap/2} Q ${ox + rX/2} ${oy} ${ox + rX} ${oy + gap/2}`, trackWidth: 14, type: 'branch' as const },
+    // Extended branch from upper-right going up
+    { path: `M ${rightX} ${oy - gap/2} L ${rightX + 80} ${oy - gap/2 - 30} A 50 40 0 0 1 ${rightX + 130} ${oy - gap/2 - 70}`, trackWidth: 14, type: 'branch' as const },
+    // Extended branch from lower-left going down
+    { path: `M ${leftX} ${oy + gap/2} L ${leftX - 80} ${oy + gap/2 + 30} A 50 40 0 0 0 ${leftX - 130} ${oy + gap/2 + 70}`, trackWidth: 14, type: 'branch' as const },
+    // Sidings
+    { path: `M ${rightX + 100} ${oy - gap/2 - 50} L ${rightX + 130} ${oy - gap/2 - 50}`, trackWidth: 11, type: 'siding' as const },
+    { path: `M ${leftX - 100} ${oy + gap/2 + 50} L ${leftX - 130} ${oy + gap/2 + 50}`, trackWidth: 11, type: 'siding' as const },
   ];
   const stations = [
     { x: ox, y: oy - rY - gap/2 - 8, label: 'NORTH JUNCTION' },
     { x: ox, y: oy + rY + gap/2 + 8, label: 'SOUTH JUNCTION' },
   ];
-  return { parts, stations, name: "Figure 8", desc: "Two ovals connected by crossover tracks", viewBox: "0 0 800 400" };
+  return { parts, stations, name: "Figure 8", desc: "Two ovals with crossover tracks and extended branches", viewBox: "0 0 800 400" };
 }
 
 // ──────────────────────────────────────────────
-// LAYOUT 5: Depot & Engine Shed
+// LAYOUT 5: Depot & Yard with Branch
 // ──────────────────────────────────────────────
 function makeDepot(ox: number, oy: number) {
   const outerRX = 200, outerRY = 85;
-  const shedX = ox + outerRX - 30, shedY = oy - outerRY + 15;
-  
+  const branchX = ox, branchY = oy - outerRY;
+
   const parts = [
+    // CLOSED main oval
     { path: `M ${ox - outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox + outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox - outerRX} ${oy}`, trackWidth: 22, type: 'main' as const },
+    // Inner oval
     { path: `M ${ox - outerRX + TRACK_GAP} ${oy} A ${outerRX - TRACK_GAP} ${outerRY - 8} 0 0 1 ${ox + outerRX - TRACK_GAP} ${oy} A ${outerRX - TRACK_GAP} ${outerRY - 8} 0 0 1 ${ox - outerRX + TRACK_GAP} ${oy}`, trackWidth: 16, type: 'main' as const },
-    { path: `M ${shedX} ${oy - outerRY + 8} L ${shedX + 55} ${shedY + 5} L ${shedX + 55} ${shedY + 18}`, trackWidth: 13, type: 'yard' as const },
-    { path: `M ${shedX} ${oy - outerRY + 8} L ${shedX + 55} ${shedY + 25} L ${shedX + 55} ${shedY + 38}`, trackWidth: 13, type: 'yard' as const },
-    { path: `M ${shedX} ${oy - outerRY + 8} L ${shedX + 55} ${shedY + 45} L ${shedX + 55} ${shedY + 58}`, trackWidth: 13, type: 'yard' as const },
+    // SUBSTANTIAL BRANCH: from top going up to engine shed area
+    { path: `M ${branchX} ${branchY} L ${branchX} ${branchY - 50} A 40 35 0 0 1 ${branchX + 50} ${branchY - 85} L ${branchX + 50} ${branchY - 130}`, trackWidth: 15, type: 'branch' as const },
+    // Shed roads branching off the main branch
+    { path: `M ${branchX + 50} ${branchY - 80} L ${branchX + 90} ${branchY - 100} L ${branchX + 90} ${branchY - 145}`, trackWidth: 13, type: 'yard' as const },
+    { path: `M ${branchX + 50} ${branchY - 95} L ${branchX + 90} ${branchY - 80} L ${branchX + 90} ${branchY - 50}`, trackWidth: 13, type: 'yard' as const },
+    // Extra siding
+    { path: `M ${branchX} ${branchY - 30} L ${branchX - 50} ${branchY - 60}`, trackWidth: 12, type: 'siding' as const },
   ];
-  const stations = [{ x: shedX + 28, y: shedY + 32, label: 'ENGINE SHED' }];
-  return { parts, stations, name: "Depot & Yard", desc: "Main line with multi-road engine shed", viewBox: "0 0 800 400" };
+  const stations = [
+    { x: ox, y: oy - outerRY - 8, label: 'MAIN LINE' },
+    { x: branchX + 45, y: branchY - 105, label: 'ENGINE SHED' },
+  ];
+  return { parts, stations, name: "Depot & Yard", desc: "Main line with substantial branch to engine shed and yard", viewBox: "0 0 800 400" };
 }
 
 // ──────────────────────────────────────────────
-// LAYOUT 6: Continuous Triple Track
+// LAYOUT 6: Triple Track Main Line
 // ──────────────────────────────────────────────
 function makeTriple(ox: number, oy: number) {
-  const outerRX = 205, outerRY = 88, gap = 11;
-  
+  const outerRX = 210, outerRY = 88, gap = 12;
+
   const parts = [
+    // CLOSED outer oval
     { path: `M ${ox - outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox + outerRX} ${oy} A ${outerRX} ${outerRY} 0 0 1 ${ox - outerRX} ${oy}`, trackWidth: 22, type: 'main' as const },
-    { path: `M ${ox - outerRX + gap} ${oy} A ${outerRX - gap} ${outerRY - gap} 0 0 1 ${ox + outerRX - gap} ${oy} A ${outerRX - gap} ${outerRY - gap} 0 0 1 ${ox - outerRX + gap} ${oy}`, trackWidth: 16, type: 'main' as const },
+    // CLOSED middle oval
+    { path: `M ${ox - outerRX + gap} ${oy} A ${outerRX - gap} ${outerRY - gap} 0 0 1 ${ox + outerRX - gap} ${oy} A ${outerRX - gap} ${outerRY - gap} 0 0 1 ${ox - outerRX + gap} ${oy}`, trackWidth: 17, type: 'main' as const },
+    // CLOSED inner oval (branch-type so train visits it as a loop)
     { path: `M ${ox - outerRX + gap*2} ${oy} A ${outerRX - gap*2} ${outerRY - gap*2} 0 0 1 ${ox + outerRX - gap*2} ${oy} A ${outerRX - gap*2} ${outerRY - gap*2} 0 0 1 ${ox - outerRX + gap*2} ${oy}`, trackWidth: 14, type: 'branch' as const },
-    { path: `M ${ox - outerRX} ${oy} L ${ox - outerRX + gap*2} ${oy + 14}`, trackWidth: 13, type: 'branch' as const },
-    { path: `M ${ox + outerRX} ${oy} L ${ox + outerRX - gap} ${oy - 12}`, trackWidth: 13, type: 'branch' as const },
+    // Long branch from right end going up and around
+    { path: `M ${ox + outerRX} ${oy} L ${ox + outerRX + 60} ${oy - 20} A 70 55 0 0 1 ${ox + outerRX + 130} ${oy - 80} L ${ox + outerRX + 130} ${oy - 140}`, trackWidth: 14, type: 'branch' as const },
+    // Siding off the long branch
+    { path: `M ${ox + outerRX + 90} ${oy - 50} L ${ox + outerRX + 120} ${oy - 50}`, trackWidth: 11, type: 'siding' as const },
+    // Short crossover
+    { path: `M ${ox - outerRX} ${oy} L ${ox - outerRX + gap*2} ${oy + 18}`, trackWidth: 11, type: 'branch' as const },
   ];
-  const stations = [{ x: ox, y: oy - outerRY - 6, label: 'TRIPLE TRACK MAIN' }];
-  return { parts, stations, name: "Triple Track", desc: "Three parallel tracks with crossovers", viewBox: "0 0 800 400" };
+  const stations = [
+    { x: ox, y: oy - outerRY - 6, label: 'TRIPLE TRACK MAIN' },
+    { x: ox + outerRX + 65, y: oy - 75, label: 'BRANCH' },
+  ];
+  return { parts, stations, name: "Triple Track", desc: "Three parallel tracks with extended branch line", viewBox: "0 0 800 400" };
 }
 
 // ──────────────────────────────────────────────
-// LAYOUT 7: Dog-Bone (long straights + big radius ends)
+// LAYOUT 7: Dog-Bone with Branch Extension
 // ──────────────────────────────────────────────
 function makeDogBone(ox: number, oy: number) {
-  const endR = 114, straight = 260;
-  
+  const endR = 110, straight = 265;
+  const leftEndX = ox - straight/2 - endR, rightEndX = ox + straight/2 + endR;
+
   const parts = [
-    { path: `M ${ox - straight/2 - endR} ${oy} A ${endR} ${endR * 0.75} 0 0 1 ${ox + straight/2} ${oy} A ${endR} ${endR * 0.75} 0 0 1 ${ox - straight/2 - endR} ${oy}`, trackWidth: 22, type: 'main' as const },
-    { path: `M ${ox - straight/2 - endR + TRACK_GAP} ${oy} A ${endR - TRACK_GAP} ${endR * 0.75 - 8} 0 0 1 ${ox + straight/2 - TRACK_GAP} ${oy} A ${endR - TRACK_GAP} ${endR * 0.75 - 8} 0 0 1 ${ox - straight/2 - endR + TRACK_GAP} ${oy}`, trackWidth: 16, type: 'main' as const },
+    // CLOSED dog-bone main track
+    { path: `M ${leftEndX} ${oy} A ${endR} ${endR * 0.75} 0 0 1 ${ox + straight/2} ${oy} A ${endR} ${endR * 0.75} 0 0 1 ${leftEndX} ${oy}`, trackWidth: 22, type: 'main' as const },
+    // Inner dog-bone
+    { path: `M ${leftEndX + TRACK_GAP} ${oy} A ${endR - TRACK_GAP} ${endR * 0.75 - 8} 0 0 1 ${ox + straight/2 - TRACK_GAP} ${oy} A ${endR - TRACK_GAP} ${endR * 0.75 - 8} 0 0 1 ${leftEndX + TRACK_GAP} ${oy}`, trackWidth: 16, type: 'main' as const },
+    // SUBSTANTIAL BRANCH from right end going up
+    { path: `M ${rightEndX} ${oy} L ${rightEndX + 80} ${oy - 30} A 60 50 0 0 1 ${rightEndX + 140} ${oy - 80} L ${rightEndX + 140} ${oy - 130}`, trackWidth: 15, type: 'branch' as const },
+    // Long siding along the straight section
+    { path: `M ${ox - 40} ${oy - endR * 0.75 + 5} L ${ox + 80} ${oy - endR * 0.75 + 5}`, trackWidth: 12, type: 'siding' as const },
+    // Branch from left end going down
+    { path: `M ${leftEndX} ${oy} L ${leftEndX - 60} ${oy + 30} A 50 40 0 0 0 ${leftEndX - 110} ${oy + 70}`, trackWidth: 14, type: 'branch' as const },
+    // Siding off left branch
+    { path: `M ${leftEndX - 80} ${oy + 50} L ${leftEndX - 80} ${oy + 90}`, trackWidth: 12, type: 'yard' as const },
   ];
-  const stations = [{ x: ox, y: oy - endR * 0.75 - 8, label: 'PASSING LOOP' }];
-  return { parts, stations, name: "Dog-Bone", desc: "Long straights with large-radius curved ends — ideal for continuous running", viewBox: "0 0 800 400" };
+  const stations = [
+    { x: ox, y: oy - endR * 0.75 - 8, label: 'DOG-BONE MAIN' },
+    { x: rightEndX + 70, y: oy - 65, label: 'EAST BRANCH' },
+    { x: leftEndX - 55, y: oy + 55, label: 'WEST BRANCH' },
+  ];
+  return { parts, stations, name: "Dog-Bone", desc: "Long straights with large-radius ends and substantial branch extensions", viewBox: "0 0 800 400" };
 }
 
 // ──────────────────────────────────────────────
-// LAYOUT 8: Heritage / Industrial Branch
-// Tight radii, industrial feel
+// LAYOUT 8: Heritage / Industrial with Real Branch
 // ──────────────────────────────────────────────
 function makeHeritage(ox: number, oy: number) {
-  const tR = 88; // 2nd radius for tighter feel
-  
+  const tR = 85;
+  const branchX = ox + tR, branchY = oy - tR * 0.65;
+
   const parts = [
-    { path: `M ${ox - tR} ${oy} A ${tR} ${tR * 0.65} 0 0 1 ${ox + tR} ${oy} A ${tR} ${tR * 0.65} 0 0 1 ${ox - tR} ${oy}`, trackWidth: 18, type: 'main' as const },
+    // CLOSED main oval (heritage tight radius)
+    { path: `M ${ox - tR} ${oy} A ${tR} ${tR * 0.65} 0 0 1 ${ox + tR} ${oy} A ${tR} ${tR * 0.65} 0 0 1 ${ox - tR} ${oy}`, trackWidth: 20, type: 'main' as const },
+    // Inner heritage loop
     { path: `M ${ox - tR + TRACK_GAP} ${oy} A ${tR - TRACK_GAP} ${tR * 0.65 - 6} 0 0 1 ${ox + tR - TRACK_GAP} ${oy} A ${tR - TRACK_GAP} ${tR * 0.65 - 6} 0 0 1 ${ox - tR + TRACK_GAP} ${oy}`, trackWidth: 14, type: 'main' as const },
-    { path: `M ${ox + tR - 20} ${oy - tR * 0.65} L ${ox + tR - 100} ${oy - tR * 0.65} L ${ox + tR - 100} ${oy - tR * 0.65 + 18}`, trackWidth: 14, type: 'main' as const },
-    { path: `M ${ox - tR + 15} ${oy + tR * 0.65 - 5} L ${ox - tR - 35} ${oy + tR * 0.65 + 45} L ${ox - tR - 35} ${oy + tR * 0.65 + 75}`, trackWidth: 12, type: 'siding' as const },
-    { path: `M ${ox - tR - 35} ${oy + tR * 0.65 + 75} L ${ox - tR - 35} ${oy + tR * 0.65 + 55}`, trackWidth: 12, type: 'yard' as const },
+    // SUBSTANTIAL BRANCH: heritage line going up and over
+    { path: `M ${branchX} ${branchY} L ${branchX + 50} ${branchY - 30} A 55 45 0 0 1 ${branchX + 110} ${branchY - 65} L ${branchX + 110} ${branchY - 115}`, trackWidth: 14, type: 'branch' as const },
+    // Platform halt on main line
+    { path: `M ${ox - 20} ${oy - tR * 0.65 + 5} L ${ox + 50} ${oy - tR * 0.65 + 5}`, trackWidth: 13, type: 'main' as const },
+    // Branch terminus siding
+    { path: `M ${branchX + 110} ${branchY - 80} L ${branchX + 150} ${branchY - 80} L ${branchX + 150} ${branchY - 55}`, trackWidth: 13, type: 'siding' as const },
+    // Industrial spur
+    { path: `M ${branchX + 70} ${branchY - 48} L ${branchX + 70} ${branchY - 20}`, trackWidth: 11, type: 'yard' as const },
   ];
-  const stations = [{ x: ox + tR - 60, y: oy - tR * 0.65 + 9, label: 'HALT' }];
-  return { parts, stations, name: "Heritage Branch", desc: "Tight-radius industrial layout with branch terminus and siding", viewBox: "0 0 800 400" };
+  const stations = [
+    { x: ox + 15, y: oy - tR * 0.65 - 5, label: 'HERITAGE HALT' },
+    { x: branchX + 55, y: branchY - 50, label: 'BRANCH' },
+  ];
+  return { parts, stations, name: "Heritage Branch", desc: "Tight-radius oval with substantial heritage branch line", viewBox: "0 0 800 400" };
 }
 
+
 // ──────────────────────────────────────────────
-// LAYOUT REGISTRY
-// ──────────────────────────────────────────────
-const FACTORIES = [makeOval, makeTerminus, makeBranch, makeFigure8, makeDepot, makeTriple, makeDogBone, makeHeritage];
+const FACTORIES = [makeDoubleOval, makeTerminus, makeJunction, makeFigure8, makeDepot, makeTriple, makeDogBone, makeHeritage];
 
 // ──────────────────────────────────────────────
 // GENERATOR
@@ -197,11 +287,17 @@ const ORIGINAL_LAYOUT = {
 // ──────────────────────────────────────────────
 // COMPONENT
 // ──────────────────────────────────────────────
-export default function InteractiveTrain() {
+interface InteractiveTrainProps {
+  /** Hide the Layout / Random selector — use for decorative background mode */
+  showControls?: boolean;
+}
+
+export default function InteractiveTrain({ showControls = true }: InteractiveTrainProps) {
   const trainRef = useRef<HTMLDivElement>(null);
   const mainPathRef = useRef<SVGPathElement>(null);
   const branchPathRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const initialized = useRef(false);
   
   const [trackMode, setTrackMode] = useState<'default' | 'random'>('default');
   const [trainPos, setTrainPos] = useState({ x: 0, y: 0 });
@@ -209,7 +305,12 @@ export default function InteractiveTrain() {
   const [trail, setTrail] = useState<Array<{ x: number; y: number; id: number }>>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [trainAngle, setTrainAngle] = useState(0);
-  const [svgRect, setSvgRect] = useState({ left: 0, top: 0, width: 800, height: 400 });
+  const [trainScaleX, setTrainScaleX] = useState(1);
+  const [svgRect, setSvgRect] = useState({ 
+    left: typeof window !== 'undefined' ? window.innerWidth / 2 - 400 : 0, 
+    top: typeof window !== 'undefined' ? window.innerHeight / 2 - 200 : 0, 
+    width: 800, height: 400 
+  });
   
   const progress = useRef(0.1);
   const animFrame = useRef<number>(0);
@@ -238,6 +339,9 @@ export default function InteractiveTrain() {
     if (typeof window === "undefined") return;
     const saved = localStorage.getItem('railway-track-mode');
     if (saved === 'random' || saved === 'default') setTrackMode(saved);
+    
+    // Force initial rect update after mount so train positions correctly from start
+    setTimeout(() => updateSvgRect(), 0);
   }, []);
 
   const handleModeChange = useCallback((mode: 'default' | 'random') => {
@@ -264,16 +368,24 @@ export default function InteractiveTrain() {
 
     updateSvgRect();
 
+    // Closed loop: train completes full oval FIRST, then visits branch and returns
+    // Progress 0 → pathLength.main/total: traverse FULL main oval once
+    // Progress pathLength.main/total → 1: traverse branch OUT AND BACK
+    const ovalFraction = pathLength.current / totalLength.current;
+    
     const getPointAtProgress = (p: number) => {
       if (p <= 0 || p > 1) p = ((p % 1) + 1) % 1;
       
-      if (p <= pathLength.current / totalLength.current) {
-        const mainP = p * (totalLength.current / pathLength.current);
+      if (p <= ovalFraction) {
+        // First phase: traverse the FULL main oval
+        const mainP = p / ovalFraction; // 0 → 1 maps to full oval traversal
         const clampedP = Math.max(0, Math.min(1, mainP));
         return { point: mainPath.getPointAtLength(clampedP * pathLength.current), onBranch: false };
       } else if (branchPath) {
-        const branchP = (p - pathLength.current / totalLength.current) * (totalLength.current / branchLength.current);
-        const clampedP = Math.max(0, Math.min(1, branchP));
+        // Second phase: branch out AND back to close the loop
+        const branchP = (p - ovalFraction) / (1 - ovalFraction); // 0 → 1 = out, 1 → 0 = back
+        const pingPongP = 1 - Math.abs((branchP * 2) - 1); // 0→1→0 triangle wave
+        const clampedP = Math.max(0, Math.min(1, pingPongP));
         return { point: branchPath.getPointAtLength(clampedP * branchLength.current), onBranch: true };
       }
       return { point: mainPath.getPointAtLength(0), onBranch: false };
@@ -282,17 +394,21 @@ export default function InteractiveTrain() {
     const updatePosition = (p: number) => {
       const { point } = getPointAtProgress(p);
       
-      const delta = 0.005;
-      const { point: nextPoint } = getPointAtProgress(p + delta);
-      const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x) * (180 / Math.PI);
-      
+      const delta = 0.003;
+      const { point: nextPoint } = getPointAtProgress(Math.min(p + delta, 0.9999));
+      const dx = nextPoint.x - point.x;
+      const dy = nextPoint.y - point.y;
+      let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      // Flip train SVG when moving left so front faces correct direction
+      const flipX = dx >= 0 ? 1 : -1;
       const scaleX = svgRect.width / 800;
       const scaleY = svgRect.height / 400;
-      const pixelX = svgRect.left + point.x * scaleX;
-      const pixelY = svgRect.top + point.y * scaleY;
+      const pixelX = point.x * scaleX;
+      const pixelY = point.y * scaleY;
       
       setTrainPos({ x: pixelX, y: pixelY });
       setTrainAngle(angle);
+      setTrainScaleX(flipX);
       
       const now = Date.now();
       if (now - lastTrailTime.current > 80) {
@@ -391,6 +507,8 @@ export default function InteractiveTrain() {
     };
   }, [isDragging, visible, svgRect, trackMode, updateSvgRect]);
 
+  // Always use the first path as main (it's always a closed oval in every layout)
+  // Branch = first branch-type path that differs from main, else undefined
   const mainTrackPath = trackParts[0]?.path || '';
   const branchTrackPath = trackParts.find(p => p.type === 'branch' && p.path !== mainTrackPath)?.path || '';
 
@@ -435,15 +553,16 @@ export default function InteractiveTrain() {
         }
         .track-inner {
           position: relative;
-          width: min(85vw, 900px);
-          height: min(42.5vw, 450px);
+          width: min(95vw, 1200px);
+          height: min(47.5vw, 600px);
+          opacity: 0.45;
         }
         @media (max-width: 640px) {
-          .track-inner { width: 95vw; height: 47.5vw; }
+          .track-inner { width: 98vw; height: 49vw; }
         }
         .track-mode-selector {
           position: fixed;
-          top: 80px; right: 16px;
+          bottom: 24px; right: 24px;
           z-index: 9990;
           display: flex;
           flex-direction: column;
@@ -491,7 +610,8 @@ export default function InteractiveTrain() {
         }
       `}</style>
 
-      {/* Track mode selector */}
+      {/* Track mode selector — hidden when used as decorative background */}
+      {showControls && (
       <div className="track-mode-selector">
         <button 
           className={`track-mode-btn default ${trackMode === 'default' ? 'active' : ''}`}
@@ -506,6 +626,7 @@ export default function InteractiveTrain() {
           Random
         </button>
       </div>
+      )}
 
       {/* Track path - behind everything */}
       <div className="track-container">
@@ -591,72 +712,72 @@ export default function InteractiveTrain() {
             style={{
               left: trainPos.x,
               top: trainPos.y,
-              opacity: visible ? 1 : 0,
-              transform: `translate(-50%, -50%) rotate(${trainAngle}deg)`,
+              opacity: visible ? 0.6 : 0,
+              transform: `translate(-50%, -50%) rotate(${trainAngle}deg) scaleX(${trainScaleX})`,
             }}
           >
             <svg viewBox="0 0 70 30" fill="none">
-              {/* Boiler */}
-              <ellipse cx="32" cy="17" rx="24" ry="10" fill="url(#engineBoiler)"/>
-              <ellipse cx="20" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
-              <ellipse cx="28" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
-              <ellipse cx="38" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
+              {/* Boiler — faces RIGHT */}
+              <ellipse cx="38" cy="17" rx="24" ry="10" fill="url(#engineBoilerR)"/>
+              <ellipse cx="50" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
+              <ellipse cx="42" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
+              <ellipse cx="32" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
               {/* Smokebox */}
-              <rect x="6" y="9" width="12" height="16" rx="2" fill="url(#smokeboxGrad)"/>
-              <ellipse cx="8" cy="17" rx="4" ry="8" fill="#1a1d28"/>
+              <rect x="52" y="9" width="12" height="16" rx="2" fill="url(#smokeboxGradR)"/>
+              <ellipse cx="62" cy="17" rx="4" ry="8" fill="#1a1d28"/>
               {/* Chimney */}
-              <rect x="10" y="2" width="8" height="10" rx="1" fill="url(#chimneyEngineGrad)"/>
-              <rect x="9" y="1" width="10" height="3" rx="1" fill="#c9a033"/>
-              <rect x="11" y="0" width="6" height="2" rx="0.5" fill="#d4a843"/>
+              <rect x="54" y="2" width="8" height="10" rx="1" fill="url(#chimneyEngineGradR)"/>
+              <rect x="53" y="1" width="10" height="3" rx="1" fill="#c9a033"/>
+              <rect x="55" y="0" width="6" height="2" rx="0.5" fill="#d4a843"/>
               {/* Dome */}
-              <ellipse cx="35" cy="7" rx="5" ry="3.5" fill="url(#domeEngineGrad)"/>
+              <ellipse cx="35" cy="7" rx="5" ry="3.5" fill="url(#domeEngineGradR)"/>
               {/* Safety valves */}
-              <rect x="40" y="4" width="3" height="5" rx="0.5" fill="#b8942f"/>
-              <rect x="44" y="4" width="3" height="5" rx="0.5" fill="#b8942f"/>
+              <rect x="26" y="4" width="3" height="5" rx="0.5" fill="#b8942f"/>
+              <rect x="22" y="4" width="3" height="5" rx="0.5" fill="#b8942f"/>
               {/* Cab */}
-              <rect x="50" y="7" width="16" height="20" rx="2" fill="url(#cabEngineGrad)"/>
-              <rect x="53" y="10" width="10" height="7" rx="1" fill="#0a0d15" opacity="0.9"/>
-              <rect x="48" y="5" width="20" height="3" rx="1" fill="#a07c2a"/>
-              {/* Wheels */}
-              <circle cx="10" cy="25" r="4" fill="#1a1d28"/>
-              <circle cx="10" cy="25" r="3.2" fill="#2a2a3a"/>
-              <circle cx="10" cy="25" r="1.2" fill="#d4a843"/>
-              <circle cx="24" cy="25" r="5" fill="#1a1d28"/>
-              <circle cx="24" cy="25" r="4" fill="#2a2a3a"/>
-              <circle cx="24" cy="25" r="1.5" fill="#d4a843"/>
-              <circle cx="36" cy="25" r="5" fill="#1a1d28"/>
-              <circle cx="36" cy="25" r="4" fill="#2a2a3a"/>
-              <circle cx="36" cy="25" r="1.5" fill="#d4a843"/>
+              <rect x="4" y="7" width="16" height="20" rx="2" fill="url(#cabEngineGradR)"/>
+              <rect x="7" y="10" width="10" height="7" rx="1" fill="#0a0d15" opacity="0.9"/>
+              <rect x="2" y="5" width="20" height="3" rx="1" fill="#a07c2a"/>
+              {/* Wheels — rightmost=front (cowcatcher side) */}
+              <circle cx="60" cy="25" r="4" fill="#1a1d28"/>
+              <circle cx="60" cy="25" r="3.2" fill="#2a2a3a"/>
+              <circle cx="60" cy="25" r="1.2" fill="#d4a843"/>
+              <circle cx="46" cy="25" r="5" fill="#1a1d28"/>
+              <circle cx="46" cy="25" r="4" fill="#2a2a3a"/>
+              <circle cx="46" cy="25" r="1.5" fill="#d4a843"/>
+              <circle cx="34" cy="25" r="5" fill="#1a1d28"/>
+              <circle cx="34" cy="25" r="4" fill="#2a2a3a"/>
+              <circle cx="34" cy="25" r="1.5" fill="#d4a843"/>
               {/* Coupling rods */}
-              <rect x="10" y="23.5" width="26" height="2" rx="1" fill="#b8942f"/>
-              {/* Cowcatcher */}
-              <path d="M 2 20 L 0 26 L 4 26 L 6 23 Z" fill="#c9a033"/>
-              <line x1="1" y1="21" x2="1.5" y2="26" stroke="#8a7020" strokeWidth="0.5"/>
-              <line x1="3" y1="20" x2="3.5" y2="26" stroke="#8a7020" strokeWidth="0.5"/>
-              {/* Headlight */}
-              <circle cx="2" cy="14" r="2.5" fill="#fffbe6"/>
-              <circle cx="2" cy="14" r="1.8" fill="#ffeb3b"/>
-              <circle cx="2" cy="14" r="0.8" fill="#fff"/>
+              <rect x="34" y="23.5" width="26" height="2" rx="1" fill="#b8942f"/>
+              {/* Cowcatcher — RIGHT side (front) */}
+              <path d="M 68 20 L 70 26 L 66 26 L 64 23 Z" fill="#c9a033"/>
+              <line x1="69" y1="21" x2="68.5" y2="26" stroke="#8a7020" strokeWidth="0.5"/>
+              <line x1="67" y1="20" x2="66.5" y2="26" stroke="#8a7020" strokeWidth="0.5"/>
+              {/* Headlight — RIGHT side (front) */}
+              <circle cx="68" cy="14" r="2.5" fill="#fffbe6"/>
+              <circle cx="68" cy="14" r="1.8" fill="#ffeb3b"/>
+              <circle cx="68" cy="14" r="0.8" fill="#fff"/>
               {/* Gradients */}
               <defs>
-                <linearGradient id="engineBoiler" x1="8" y1="7" x2="8" y2="27" gradientUnits="userSpaceOnUse">
+                <linearGradient id="engineBoilerR" x1="62" y1="7" x2="62" y2="27" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stopColor="#e8c865"/>
                   <stop offset="40%" stopColor="#d4a843"/>
                   <stop offset="100%" stopColor="#9a7a20"/>
                 </linearGradient>
-                <linearGradient id="smokeboxGrad" x1="12" y1="9" x2="12" y2="25" gradientUnits="userSpaceOnUse">
+                <linearGradient id="smokeboxGradR" x1="58" y1="9" x2="58" y2="25" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stopColor="#3a3a4a"/>
                   <stop offset="100%" stopColor="#1a1d28"/>
                 </linearGradient>
-                <linearGradient id="chimneyEngineGrad" x1="14" y1="2" x2="14" y2="12" gradientUnits="userSpaceOnUse">
+                <linearGradient id="chimneyEngineGradR" x1="58" y1="2" x2="58" y2="12" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stopColor="#d4a843"/>
                   <stop offset="100%" stopColor="#8a7020"/>
                 </linearGradient>
-                <radialGradient id="domeEngineGrad" cx="50%" cy="30%" r="60%">
+                <radialGradient id="domeEngineGradR" cx="50%" cy="30%" r="60%">
                   <stop offset="0%" stopColor="#e8d080"/>
                   <stop offset="100%" stopColor="#c9a033"/>
                 </radialGradient>
-                <linearGradient id="cabEngineGrad" x1="50" y1="7" x2="66" y2="27" gradientUnits="userSpaceOnUse">
+                <linearGradient id="cabEngineGradR" x1="4" y1="7" x2="20" y2="27" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stopColor="#c9a033"/>
                   <stop offset="100%" stopColor="#8a7020"/>
                 </linearGradient>
