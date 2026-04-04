@@ -63,7 +63,7 @@ function Nav({ active }: { active: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const whistleRef = useRef<HTMLAudioElement | null>(null);
-  useEffect(() => { whistleRef.current = new Audio("/sounds/whistle.mp3"); whistleRef.current.volume = 0.2; }, []);
+  useEffect(() => { whistleRef.current = new Audio("/sounds/train-move.mp3"); whistleRef.current.volume = 0.12; }, []);
   useEffect(() => { const onScroll = () => setScrolled(window.scrollY > 40); window.addEventListener("scroll", onScroll, { passive: true }); return () => window.removeEventListener("scroll", onScroll); }, []);
   const links = [
     { id: "home", label: "Home" }, { id: "layout", label: "The Layout" }, { id: "journal", label: "Build Journal" },
@@ -137,11 +137,11 @@ function Hero() {
           ))}
         </motion.div>
         <motion.div className="flex flex-wrap justify-center gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3 }}>
-          <a href="#layout" onClick={() => { const a = new Audio("/sounds/whistle.mp3"); a.volume = 0.2; a.play().catch(() => {}); }}
+          <a href="#layout" onClick={() => { const a = new Audio("/sounds/train-move.mp3"); a.volume = 0.15; a.play().catch(() => {}); }}
             className="relative overflow-hidden btn-shine bg-railway-accent text-railway-bg font-bold px-7 py-3.5 rounded-xl transition-all duration-300 hover:bg-railway-accent-hover hover:shadow-xl hover:shadow-railway-accent/20 active:scale-95 cursor-pointer">
             Explore the Layout
           </a>
-          <a href="/real-railways" onClick={() => { const a = new Audio("/sounds/whistle.mp3"); a.volume = 0.2; a.play().catch(() => {}); }}
+          <a href="/real-railways" onClick={() => { const a = new Audio("/sounds/train-move.mp3"); a.volume = 0.15; a.play().catch(() => {}); }}
             className="border border-railway-border text-railway-muted font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:border-railway-accent/50 hover:text-railway-text hover:bg-railway-accent/5 active:scale-95">
             Real Railways →
           </a>
@@ -411,7 +411,7 @@ export default function Home() {
     // Play departure whistle on first page load
     const audio = new Audio("/sounds/departure.mp3");
     audio.volume = 0.15;
-    audio.play().catch(() => {});
+    audio.volume = 0.08; audio.play().catch(() => {});
     const observer = new IntersectionObserver(
       (entries) => { entries.forEach((entry) => { if (entry.isIntersecting) setActiveSection(entry.target.id); }); },
       { threshold: 0.25, rootMargin: "-100px 0px -55% 0px" }
