@@ -583,7 +583,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
           pointer-events: none;
           z-index: 0;
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           justify-content: center;
           overflow: hidden;
         }
@@ -592,9 +592,6 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
           width: min(95vw, 1200px);
           height: min(47.5vw, 600px);
           opacity: 0.45;
-        }
-        @media (max-width: 640px) {
-          .track-inner { width: 98vw; height: min(58vw, 320px); padding-top: 60px; }
         }
         .track-mode-selector {
           position: fixed;
@@ -671,7 +668,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
             ref={svgRef}
             viewBox={currentViewBox} 
             className="w-full h-full"
-            style={{ display: 'block', pointerEvents: 'all' }}
+            style={{ display: 'block' }}
           >
             <defs>
               <filter id="railGlow" x="-50%" y="-50%" width="200%" height="200%">
