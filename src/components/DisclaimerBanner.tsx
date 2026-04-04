@@ -1,31 +1,40 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const BANNER_HEIGHT = 48;
 
 export { BANNER_HEIGHT };
 
+function subscribeToStorage(callback: () => void) {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+function getDismissedSnapshot(): string | null {
+  return localStorage.getItem("railway-disclaimer-dismissed");
+}
+
+function getDismissedServerSnapshot(): null {
+  return null; // Server: treat banner as visible
+}
+
 export default function DisclaimerBanner() {
-  const [visible, setVisible] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // useSyncExternalStore avoids calling setState in an effect to read localStorage
+  const dismissed = useSyncExternalStore(
+    subscribeToStorage,
+    getDismissedSnapshot,
+    getDismissedServerSnapshot
+  );
+  const visible = dismissed === null;
 
-  useEffect(() => {
-    setMounted(true);
-    const dismissed = localStorage.getItem("railway-disclaimer-dismissed");
-    if (!dismissed) setVisible(true);
-    document.documentElement.style.setProperty("--banner-h", dismissed ? "0px" : "48px");
-  }, []);
-
-  const handleDismiss = () => {
-    setVisible(false);
+  const handleDismiss = useCallback(() => {
     localStorage.setItem("railway-disclaimer-dismissed", "1");
     document.documentElement.style.setProperty("--banner-h", "0px");
-  };
-
-  // Don't render until mounted to avoid hydration mismatch
-  if (!mounted) return <div style={{ height: `${BANNER_HEIGHT}px` }} />;
+    // Notify the store subscriber so useSyncExternalStore re-reads in this tab
+    window.dispatchEvent(new StorageEvent("storage"));
+  }, []);
 
   return (
     <>

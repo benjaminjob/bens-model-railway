@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 import "./globals.css";
 import DisclaimerBanner from "@/components/DisclaimerBanner";
 import { SoundProvider } from "@/context/SoundContext";
@@ -40,10 +41,6 @@ export default function RootLayout({
             `,
           }}
         />
-        <script
-          type="module"
-          src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"
-        />
         <link
           rel="icon"
           href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚂</text></svg>"
@@ -54,6 +51,11 @@ export default function RootLayout({
         style={{ paddingTop: "var(--banner-h, 48px)" }}
       >
         <DisclaimerBanner />
+        <Script
+          type="module"
+          src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"
+          strategy="afterInteractive"
+        />
         <SoundProvider>
           {children}
         </SoundProvider>

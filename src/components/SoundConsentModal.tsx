@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSound } from "@/context/SoundContext";
 
@@ -9,7 +8,7 @@ interface SoundConsentModalProps {
 }
 
 export default function SoundConsentModal({ onPlaySounds }: SoundConsentModalProps) {
-  const { isMuted, setIsMuted } = useSound();
+  const { setIsMuted } = useSound();
 
   return (
     <AnimatePresence>

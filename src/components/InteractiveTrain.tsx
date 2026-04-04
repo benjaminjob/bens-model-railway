@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useSound } from "@/context/SoundContext";
 
 // ============================================
@@ -10,9 +10,6 @@ import { useSound } from "@/context/SoundContext";
 // Turnout angle: 22.5° | Rail height: code 100
 // Standard radii: 371mm (1st), 438mm (2nd), 505mm (3rd), 571.5mm (4th)
 // ============================================
-
-const MM = 0.2; // 1 unit = 5mm real → 1mm = 0.2 SVG units
-const TRACK_GAP = Math.round(67 * MM); // 13 units
 
 // ──────────────────────────────────────────────
 
@@ -274,11 +271,14 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   const mainPathRef = useRef<SVGPathElement>(null);
   const branchPathRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const initialized = useRef(false);
   
-  const [trackMode, setTrackMode] = useState<'default' | 'random'>('default');
+  const [trackMode, setTrackMode] = useState<'default' | 'random'>(() => {
+    if (typeof window === "undefined") return 'default';
+    const saved = localStorage.getItem('railway-track-mode');
+    return (saved === 'random' || saved === 'default') ? saved : 'default';
+  });
   const [trainPos, setTrainPos] = useState({ x: 0, y: 0 });
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [trail, setTrail] = useState<Array<{ x: number; y: number; id: number }>>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [trainAngle, setTrainAngle] = useState(0);
@@ -287,6 +287,14 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   const [activeSignals, setActiveSignals] = useState<Set<string>>(new Set());
   const smokeId = useRef(0);
   const { isMuted } = useSound();
+  // Refs to expose current values to effects without adding to their dep arrays
+  const isMutedRef = useRef(isMuted);
+  const trainAngleRef = useRef(0);
+  const trainPosRef = useRef({ x: 0, y: 0 });
+  // Keep isMutedRef in sync after each render (must be done in an effect, not during render)
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  });
 
   // Signal positions on the default oval layout
   const SIGNAL_POSITIONS = [
@@ -321,7 +329,9 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   const branchLength = useRef(0);
   const totalLength = useRef(0);
   
-  const randomLayout = useMemo(() => genLayout(Date.now()), []);
+  // Use useState (lazy initialiser) instead of useMemo so Date.now() is not
+  // called during render (which violates the React Compiler's purity rules).
+  const [randomLayout] = useState(() => genLayout(Date.now()));
   
   const trackParts = trackMode === 'default'
     ? [
@@ -336,13 +346,11 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
     ? [{ x: 400, y: 160, label: 'STATION' }]
     : randomLayout.stations;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const saved = localStorage.getItem('railway-track-mode');
-    if (saved === 'random' || saved === 'default') setTrackMode(saved);
-    
-    // Force initial rect update after mount so train positions correctly from start
-    setTimeout(() => updateSvgRect(), 0);
+  // Declare updateSvgRect before the effects that reference it
+  const updateSvgRect = useCallback(() => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    setSvgRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
   }, []);
 
   const handleModeChange = useCallback((mode: 'default' | 'random') => {
@@ -350,11 +358,10 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
     localStorage.setItem('railway-track-mode', mode);
   }, []);
 
-  const updateSvgRect = useCallback(() => {
-    if (!svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    setSvgRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
-  }, []);
+  useEffect(() => {
+    // Force initial rect update after mount so train positions correctly from start
+    setTimeout(() => updateSvgRect(), 0);
+  }, [updateSvgRect]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -414,6 +421,9 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
       setTrainPos({ x: pixelX, y: pixelY });
       setTrainAngle(angle);
       setTrainScaleX(flipX);
+      // Keep refs in sync so handleDown can read current values without stale closure
+      trainAngleRef.current = angle;
+      trainPosRef.current = { x: pixelX, y: pixelY };
       
       const now = Date.now();
       if (now - lastTrailTime.current > 80) {
@@ -482,20 +492,20 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
         const a = new Audio("/sounds/train-move.mp3");
         a.volume = 0.2;
         a.play().catch(() => {});
-        // Play whistle on click
-        if (!isMuted) {
+        // Play whistle on click (read via ref to avoid stale closure)
+        if (!isMutedRef.current) {
           const w = new Audio("/sounds/whistle.mp3");
           w.volume = 0.3;
           w.play().catch(() => {});
         }
         // Spawn smoke particles at chimney position — offset perpendicular to travel direction
         // Smoke rises roughly opposite to travel (dx, dy) → perpendicular = (-dy, dx) normalized
-        const rad = (trainAngle * Math.PI) / 180;
+        const rad = (trainAngleRef.current * Math.PI) / 180;
         // Chimney is ~25px behind the train center, and smoke rises perpendicular to travel
         const smokeDist = 28; // px behind train center
         const smokeRise = 22; // px above train center (screen space)
-        const smokeX = trainPos.x - Math.cos(rad) * smokeDist;
-        const smokeY = trainPos.y - Math.sin(rad) * smokeDist - smokeRise;
+        const smokeX = trainPosRef.current.x - Math.cos(rad) * smokeDist;
+        const smokeY = trainPosRef.current.y - Math.sin(rad) * smokeDist - smokeRise;
         const newParticles: Array<{ id: number; x: number; y: number; age: number }> = [];
         for (let i = 0; i < 10; i++) {
           newParticles.push({ id: ++smokeId.current, x: smokeX, y: smokeY, age: 0 });
@@ -512,7 +522,6 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
     window.addEventListener('scroll', updateSvgRect, { passive: true });
 
     animFrame.current = requestAnimationFrame(animate);
-    setVisible(true);
 
     window.addEventListener("mousemove", handleMove, { passive: true });
     window.addEventListener("touchmove", handleMove, { passive: true });
@@ -683,7 +692,6 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
               const ballastColor = isMain ? '#3a3a4a' : '#323240';
               const railColor = '#d4a843';
               const sw = part.trackWidth;
-              const railW = Math.max(sw - (isMain ? 16 : 12), 4);
               
               return (
                 <g key={idx}>
