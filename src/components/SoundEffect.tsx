@@ -52,7 +52,7 @@ export function Soundful({
   return (
     <a
       href={href}
-      onClick={(e) => { play(); onClick?.(); }}
+      onClick={() => { play(); onClick?.(); }}
       className={className}
     >
       {children}
