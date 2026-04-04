@@ -51,7 +51,7 @@ export default function SoundConsentModal({ onPlaySounds }: SoundConsentModalPro
               🔊 Play Sounds
             </button>
             <button
-              onClick={() => setIsMuted(true)}
+              onClick={() => { setIsMuted(true); onPlaySounds(); }}
               className="w-full border border-railway-border text-railway-muted hover:text-railway-text hover:border-railway-accent/40 font-semibold py-3.5 rounded-xl transition-all duration-200 active:scale-95 text-sm"
             >
               🔇 Mute Sounds

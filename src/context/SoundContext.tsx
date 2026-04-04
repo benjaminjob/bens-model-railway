@@ -14,17 +14,17 @@ const SoundContext = createContext<SoundContextValue>({
   hasDecided: false,
 });
 
-export function SoundProvider({ children }: { children: ReactNode }) {
-  const [isMuted, setIsMutedState] = useState(false);
-  const [hasDecided, setHasDecided] = useState(false);
+function getStoredMute(): boolean | null {
+  if (typeof window === "undefined") return null;
+  const stored = localStorage.getItem("railway-sound-muted");
+  if (stored === null) return null;
+  return stored === "true";
+}
 
-  useEffect(() => {
-    const stored = localStorage.getItem("railway-sound-muted");
-    if (stored !== null) {
-      setIsMutedState(stored === "true");
-      setHasDecided(true);
-    }
-  }, []);
+export function SoundProvider({ children }: { children: ReactNode }) {
+  const storedMute = getStoredMute();
+  const [isMuted, setIsMutedState] = useState(storedMute ?? false);
+  const [hasDecided, setHasDecided] = useState(storedMute !== null);
 
   const setIsMuted = (v: boolean) => {
     setIsMutedState(v);

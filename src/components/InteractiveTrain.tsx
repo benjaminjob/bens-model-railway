@@ -488,14 +488,17 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
           w.volume = 0.3;
           w.play().catch(() => {});
         }
-        // Spawn smoke particles at chimney position
+        // Spawn smoke particles at chimney position — offset perpendicular to travel direction
+        // Smoke rises roughly opposite to travel (dx, dy) → perpendicular = (-dy, dx) normalized
         const rad = (trainAngle * Math.PI) / 180;
-        const scaleX = trainScaleX;
-        const frontX = Math.cos(rad) * 58 + trainPos.x;
-        const chimneyAbsY = Math.sin(rad) * -15 + Math.cos(rad) * (scaleX * 2) * -1 + trainPos.y;
+        // Chimney is ~25px behind the train center, and smoke rises perpendicular to travel
+        const smokeDist = 28; // px behind train center
+        const smokeRise = 22; // px above train center (screen space)
+        const smokeX = trainPos.x - Math.cos(rad) * smokeDist;
+        const smokeY = trainPos.y - Math.sin(rad) * smokeDist - smokeRise;
         const newParticles: Array<{ id: number; x: number; y: number; age: number }> = [];
         for (let i = 0; i < 10; i++) {
-          newParticles.push({ id: ++smokeId.current, x: frontX, y: chimneyAbsY, age: 0 });
+          newParticles.push({ id: ++smokeId.current, x: smokeX, y: smokeY, age: 0 });
         }
         setSmokeParticles(prev => [...prev, ...newParticles]);
       }
@@ -580,7 +583,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
           pointer-events: none;
           z-index: 0;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: center;
           overflow: hidden;
         }
@@ -591,7 +594,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
           opacity: 0.45;
         }
         @media (max-width: 640px) {
-          .track-inner { width: 98vw; height: 49vw; }
+          .track-inner { width: 98vw; height: min(58vw, 320px); padding-top: 60px; }
         }
         .track-mode-selector {
           position: fixed;
@@ -668,7 +671,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
             ref={svgRef}
             viewBox={currentViewBox} 
             className="w-full h-full"
-            style={{ display: 'block' }}
+            style={{ display: 'block', pointerEvents: 'all' }}
           >
             <defs>
               <filter id="railGlow" x="-50%" y="-50%" width="200%" height="200%">
@@ -744,6 +747,8 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
                   });
                 }} style={{ cursor: 'pointer' }}>
                   <line x1={sig.x} y1={sig.y} x2={sig.x} y2={sig.y + 18} stroke={active ? '#22c55e' : '#ef4444'} strokeWidth="1.5" opacity="0.6"/>
+                  {/* Larger invisible tap target + visible circle */}
+                  <circle cx={sig.x} cy={sig.y} r="14" fill="transparent" style={{ cursor: 'pointer' }}/>
                   <circle cx={sig.x} cy={sig.y} r="5" fill={active ? '#22c55e' : '#ef4444'} opacity={active ? 0.9 : 0.7}
                     style={{ filter: active ? 'drop-shadow(0 0 4px #22c55e)' : 'drop-shadow(0 0 3px #ef4444)' }}/>
                   {active && <circle cx={sig.x} cy={sig.y} r="8" fill="none" stroke="#22c55e" strokeWidth="1" opacity="0.4"/>}
