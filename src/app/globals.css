@@ -8,26 +8,97 @@
   }
 
   body {
-    background-color: #0f1117;
+    background-color: #0a0d15;
     color: #f0f0f0;
     overflow-x: hidden;
+    position: relative;
   }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      /* Subtle track grid - horizontal lines */
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 80px,
+        rgba(212, 168, 67, 0.025) 80px,
+        rgba(212, 168, 67, 0.025) 81px
+      ),
+      /* Vertical lines spaced like railway sleepers */
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 120px,
+        rgba(212, 168, 67, 0.02) 120px,
+        rgba(212, 168, 67, 0.02) 121px
+      );
+    animation: bgDrift 60s linear infinite;
+  }
+
+  /* Floating glow orbs */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 40% 30% at 15% 20%, rgba(212, 168, 67, 0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 35% 25% at 85% 70%, rgba(212, 168, 67, 0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(100, 120, 200, 0.03) 0%, transparent 70%);
+    animation: orbFloat 20s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes bgDrift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(80px); }
+}
+
+@keyframes orbFloat {
+  0% { opacity: 0.6; transform: scale(1) translateY(0); }
+  100% { opacity: 1; transform: scale(1.1) translateY(-20px); }
 }
 
 /* ── Animated hero background ── */
 .hero-bg {
-  background: linear-gradient(135deg, #0a0d18 0%, #0f1117 40%, #12151f 70%, #0d1018 100%);
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(212, 168, 67, 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 20% 80%, rgba(180, 130, 60, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(212, 168, 67, 0.05) 0%, transparent 50%),
+    linear-gradient(180deg, #0d1020 0%, #0a0d18 40%, #0f1117 100%);
   position: relative;
+  overflow: hidden;
 }
 
 .hero-bg::before {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212, 168, 67, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212, 168, 67, 0.04) 0%, transparent 50%);
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent 99px, rgba(212,168,67,0.06) 99px, rgba(212,168,67,0.06) 100px),
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(212,168,67,0.03) 79px, rgba(212,168,67,0.03) 80px);
+  animation: trackGridMove 30s linear infinite;
   pointer-events: none;
+}
+
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 100% 50% at 50% 100%, rgba(212,168,67,0.08) 0%, transparent 60%);
+  pointer-events: none;
+  animation: glowPulse 4s ease-in-out infinite;
+}
+
+@keyframes trackGridMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(80px); }
 }
 
 /* Grain texture */

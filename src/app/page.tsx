@@ -62,19 +62,22 @@ const GALLERY_ITEMS = [
 function Nav({ active }: { active: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const whistleRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => { whistleRef.current = new Audio("/sounds/whistle.mp3"); whistleRef.current.volume = 0.2; }, []);
   useEffect(() => { const onScroll = () => setScrolled(window.scrollY > 40); window.addEventListener("scroll", onScroll, { passive: true }); return () => window.removeEventListener("scroll", onScroll); }, []);
   const links = [
     { id: "home", label: "Home" }, { id: "layout", label: "The Layout" }, { id: "journal", label: "Build Journal" },
-    { id: "renders", label: "3D Renders" }, { id: "real-railways", label: "Real Railways" }, { id: "software", label: "Software" },
+    { id: "renders", label: "3D Renders" }, { page: "/real-railways", label: "Real Railways" }, { id: "software", label: "Software" },
   ];
+  const playWhistle = () => { if (whistleRef.current) { whistleRef.current.currentTime = 0; whistleRef.current.play().catch(() => {}); } };
   return (
-    <motion.nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "nav-blur bg-railway-bg/80 border-b border-railway-border/50" : "bg-transparent"}`}
+    <motion.nav className={`fixed top-[44px] left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "nav-blur bg-railway-bg/80 border-b border-railway-border/50" : "bg-transparent"}`}
       initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <span className="font-heading text-lg font-bold text-railway-accent tracking-wide">Ben&apos;s Model Railway</span>
         <div className="hidden md:flex items-center gap-1">
           {links.map((l) => (
-            <a key={l.id} href={`#${l.id}`}
+            <a key={l.label} href={l.page ?? `#${l.id}`} onClick={playWhistle}
               className={`relative px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-200 ${active === l.id ? "text-railway-accent" : "text-railway-muted hover:text-railway-text"}`}>
               {active === l.id && <motion.div layoutId="nav-indicator" className="absolute inset-0 bg-railway-accent/10 border border-railway-accent/30 rounded-full" transition={{ type: "spring", stiffness: 400, damping: 30 }}/>}
               <span className="relative z-10">{l.label}</span>
@@ -90,7 +93,7 @@ function Nav({ active }: { active: string }) {
           className="md:hidden bg-railway-surface border-t border-railway-border overflow-hidden">
           <div className="px-4 py-3 flex flex-col gap-1">
             {links.map((l) => (
-              <a key={l.id} href={`#${l.id}`} onClick={() => setMenuOpen(false)}
+              <a key={l.label} href={l.page ?? `#${l.id}`} onClick={() => { playWhistle(); setMenuOpen(false); }}
                 className={`px-3 py-2 text-sm rounded-lg ${active === l.id ? "bg-railway-accent/10 text-railway-accent" : "text-railway-muted"}`}>{l.label}</a>
             ))}
           </div>
@@ -134,10 +137,12 @@ function Hero() {
           ))}
         </motion.div>
         <motion.div className="flex flex-wrap justify-center gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3 }}>
-          <a href="#layout" className="relative overflow-hidden btn-shine bg-railway-accent text-railway-bg font-bold px-7 py-3.5 rounded-xl transition-all duration-300 hover:bg-railway-accent-hover hover:shadow-xl hover:shadow-railway-accent/20 active:scale-95">
+          <a href="#layout" onClick={() => { const a = new Audio("/sounds/whistle.mp3"); a.volume = 0.2; a.play().catch(() => {}); }}
+            className="relative overflow-hidden btn-shine bg-railway-accent text-railway-bg font-bold px-7 py-3.5 rounded-xl transition-all duration-300 hover:bg-railway-accent-hover hover:shadow-xl hover:shadow-railway-accent/20 active:scale-95 cursor-pointer">
             Explore the Layout
           </a>
-          <a href="/real-railways" className="border border-railway-border text-railway-muted font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:border-railway-accent/50 hover:text-railway-text hover:bg-railway-accent/5 active:scale-95">
+          <a href="/real-railways" onClick={() => { const a = new Audio("/sounds/whistle.mp3"); a.volume = 0.2; a.play().catch(() => {}); }}
+            className="border border-railway-border text-railway-muted font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:border-railway-accent/50 hover:text-railway-text hover:bg-railway-accent/5 active:scale-95">
             Real Railways →
           </a>
         </motion.div>
@@ -403,6 +408,10 @@ function Footer() {
 export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
   useEffect(() => {
+    // Play departure whistle on first page load
+    const audio = new Audio("/sounds/departure.mp3");
+    audio.volume = 0.15;
+    audio.play().catch(() => {});
     const observer = new IntersectionObserver(
       (entries) => { entries.forEach((entry) => { if (entry.isIntersecting) setActiveSection(entry.target.id); }); },
       { threshold: 0.25, rootMargin: "-100px 0px -55% 0px" }
@@ -411,7 +420,7 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
   return (
-    <main>
+    <main className="relative z-10">
       <Nav active={activeSection} />
       <Hero />
       <TheLayout />
