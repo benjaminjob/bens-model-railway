@@ -21,26 +21,23 @@
     pointer-events: none;
     z-index: 0;
     background-image:
-      /* Subtle track grid - horizontal lines */
       repeating-linear-gradient(
         0deg,
         transparent,
-        transparent 80px,
-        rgba(212, 168, 67, 0.025) 80px,
-        rgba(212, 168, 67, 0.025) 81px
+        transparent 79px,
+        rgba(212, 168, 67, 0.07) 79px,
+        rgba(212, 168, 67, 0.07) 81px
       ),
-      /* Vertical lines spaced like railway sleepers */
       repeating-linear-gradient(
         90deg,
         transparent,
-        transparent 120px,
-        rgba(212, 168, 67, 0.02) 120px,
-        rgba(212, 168, 67, 0.02) 121px
+        transparent 119px,
+        rgba(212, 168, 67, 0.05) 119px,
+        rgba(212, 168, 67, 0.05) 121px
       );
-    animation: bgDrift 60s linear infinite;
+    animation: bgDrift 30s linear infinite;
   }
 
-  /* Floating glow orbs */
   body::after {
     content: "";
     position: fixed;
@@ -48,10 +45,11 @@
     pointer-events: none;
     z-index: 0;
     background:
-      radial-gradient(ellipse 40% 30% at 15% 20%, rgba(212, 168, 67, 0.05) 0%, transparent 70%),
-      radial-gradient(ellipse 35% 25% at 85% 70%, rgba(212, 168, 67, 0.04) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(100, 120, 200, 0.03) 0%, transparent 70%);
-    animation: orbFloat 20s ease-in-out infinite alternate;
+      radial-gradient(ellipse 50% 40% at 10% 15%, rgba(212, 168, 67, 0.12) 0%, transparent 65%),
+      radial-gradient(ellipse 45% 35% at 90% 75%, rgba(212, 168, 67, 0.10) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 50% at 50% 110%, rgba(212, 168, 67, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 25% at 75% 30%, rgba(255, 220, 100, 0.06) 0%, transparent 70%);
+    animation: orbFloat 12s ease-in-out infinite alternate;
   }
 }
 
@@ -61,16 +59,16 @@
 }
 
 @keyframes orbFloat {
-  0% { opacity: 0.6; transform: scale(1) translateY(0); }
-  100% { opacity: 1; transform: scale(1.1) translateY(-20px); }
+  0% { opacity: 0.7; transform: scale(1) translateY(0); }
+  100% { opacity: 1; transform: scale(1.08) translateY(-15px); }
 }
 
 /* ── Animated hero background ── */
 .hero-bg {
   background:
-    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(212, 168, 67, 0.1) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 50% at 20% 80%, rgba(180, 130, 60, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(212, 168, 67, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 70% at 50% 0%, rgba(212, 168, 67, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 20% 90%, rgba(180, 130, 60, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 50% at 80% 70%, rgba(212, 168, 67, 0.10) 0%, transparent 50%),
     linear-gradient(180deg, #0d1020 0%, #0a0d18 40%, #0f1117 100%);
   position: relative;
   overflow: hidden;
@@ -81,9 +79,9 @@
   position: absolute;
   inset: 0;
   background-image:
-    repeating-linear-gradient(90deg, transparent, transparent 99px, rgba(212,168,67,0.06) 99px, rgba(212,168,67,0.06) 100px),
-    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(212,168,67,0.03) 79px, rgba(212,168,67,0.03) 80px);
-  animation: trackGridMove 30s linear infinite;
+    repeating-linear-gradient(90deg, transparent, transparent 99px, rgba(212,168,67,0.12) 99px, rgba(212,168,67,0.12) 101px),
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(212,168,67,0.07) 79px, rgba(212,168,67,0.07) 81px);
+  animation: trackGridMove 20s linear infinite;
   pointer-events: none;
 }
 
@@ -91,9 +89,9 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 100% 50% at 50% 100%, rgba(212,168,67,0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(212,168,67,0.15) 0%, transparent 55%);
   pointer-events: none;
-  animation: glowPulse 4s ease-in-out infinite;
+  animation: glowPulse 3s ease-in-out infinite;
 }
 
 @keyframes trackGridMove {
@@ -103,7 +101,7 @@
 
 /* Grain texture */
 .hero-grain {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
 }
 
 /* ── Animated track lines (hero decoration) ── */

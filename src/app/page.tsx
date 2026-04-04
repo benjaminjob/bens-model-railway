@@ -111,8 +111,9 @@ function Hero() {
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <motion.div style={{ y, opacity }} className="absolute inset-0 hero-bg hero-grain"/>
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-railway-accent/5 blur-[100px]"/>
-        <div className="absolute bottom-0 left-0 w-[600px] h-[400px] rounded-full bg-railway-accent/3 blur-[80px]"/>
+        <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-railway-accent/10 blur-[80px]" style={{ animation: "glowPulse 4s ease-in-out infinite" }}/>
+        <div className="absolute bottom-0 left-0 w-[700px] h-[450px] rounded-full bg-railway-accent/8 blur-[60px]" style={{ animation: "glowPulse 5s ease-in-out infinite 1s" }}/>
+        <div className="absolute top-[30%] right-[-10%] w-[400px] h-[400px] rounded-full bg-railway-accent/5 blur-[60px]" style={{ animation: "glowPulse 6s ease-in-out infinite 2s" }}/>
       </div>
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <motion.p className="text-railway-accent text-xs tracking-[0.3em] uppercase mb-5 font-medium" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
