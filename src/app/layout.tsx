@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 import "./globals.css";
 import DisclaimerBanner from "@/components/DisclaimerBanner";
 
@@ -29,7 +30,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <script
+        <Script
+          id="banner-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -39,9 +42,10 @@ export default function RootLayout({
             `,
           }}
         />
-        <script
+        <Script
           type="module"
           src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"
+          strategy="lazyOnload"
         />
         <link
           rel="icon"

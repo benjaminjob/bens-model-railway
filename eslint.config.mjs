@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Helper/utility scripts at repo root:
+    "fix_layouts.js",
+    "fix_layouts.py",
   ]),
 ]);
 

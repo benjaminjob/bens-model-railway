@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import InteractiveTrain from "@/components/InteractiveTrain";
 
 const RAILWAY_DATA = {
@@ -380,7 +380,7 @@ function Nav({ active }: { active: string }) {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center gap-3">
           {/* Home button */}
-          <a
+          <Link
             href="/"
             onClick={() => { if (navClickRef.current) { navClickRef.current.currentTime = 0; navClickRef.current.play().catch(() => {}); } }}
             className="flex items-center gap-2.5 px-5 py-3 rounded-xl bg-railway-surface border border-railway-border/60 text-railway-text hover:text-railway-accent hover:border-railway-accent/40 hover:bg-railway-accent/5 transition-all duration-200 text-sm font-semibold shadow-lg shadow-black/20"
@@ -390,7 +390,7 @@ function Nav({ active }: { active: string }) {
               <polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
             <span>Home</span>
-          </a>
+          </Link>
           
           {/* Divider */}
           <div className="w-px h-8 bg-railway-border/50 mx-1"/>
@@ -497,7 +497,7 @@ export default function RealRailways() {
                 <p className="text-railway-muted text-sm leading-relaxed">
                   Designed by Isambard Kingdom Brunel and opened in 1859, the Royal Albert Bridge
                   crosses the River Tamar between Devon (St Budeaux) and Cornwall (Saltash). It
-                  remains one of Britain's most iconic railway structures — 1,000ft long with
+                  remains one of Britain&apos;s most iconic railway structures — 1,000ft long with
                   19 wrought-iron arches, carrying the Cornish Main Line into Cornwall.
                 </p>
                 <div className="mt-3 grid grid-cols-3 gap-2 text-center">
@@ -617,7 +617,7 @@ export default function RealRailways() {
                   Working since 2002 to restore the old Helston Branch line. Currently operating
                   between Prospidnick Halt and Truthall Platform. A long-term project to extend
                   back to Helston is ongoing. Their goal: rebuild what was lost and bring trains
-                  back to England's most southerly town.
+                  back to England&apos;s most southerly town.
                 </p>
                 <a
                   href="https://www.helstonrailway.co.uk"

@@ -63,7 +63,6 @@ const GALLERY_ITEMS = [
 function Nav({ active }: { active: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [bannerVisible, setBannerVisible] = useState(true);
   const navClickRef = useRef<HTMLAudioElement | null>(null);
   const menuToggleRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
@@ -73,7 +72,6 @@ function Nav({ active }: { active: string }) {
     menuToggleRef.current.volume = 0.3;
   }, []);
   useEffect(() => {
-    setBannerVisible(!localStorage.getItem("railway-disclaimer-dismissed"));
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -85,7 +83,7 @@ function Nav({ active }: { active: string }) {
   const playNavClick = () => { if (navClickRef.current) { navClickRef.current.currentTime = 0; navClickRef.current.play().catch(() => {}); } };
   const playMenuToggle = () => { if (menuToggleRef.current) { menuToggleRef.current.currentTime = 0; menuToggleRef.current.play().catch(() => {}); } };
   return (
-    <motion.nav className={`fixed left-0 right-0 z-[9998] transition-all duration-300 ${scrolled ? "nav-blur bg-railway-bg/80 border-b border-railway-border/50" : "bg-transparent"}`} style={{ top: bannerVisible ? "48px" : "0" }}
+    <motion.nav className={`fixed left-0 right-0 z-[9998] transition-all duration-300 ${scrolled ? "nav-blur bg-railway-bg/80 border-b border-railway-border/50" : "bg-transparent"}`} style={{ top: "var(--banner-h, 48px)" }}
       initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <span className="font-heading text-lg font-bold text-railway-accent tracking-wide">Ben&apos;s Model Railway</span>
@@ -116,7 +114,7 @@ function Nav({ active }: { active: string }) {
             </div>
             {/* Links */}
             <div className="p-2 pb-3">
-              {links.map((l, i) => {
+              {links.map((l) => {
                 const icons: { [key: string]: React.ReactNode } = {
                   Home: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
                   "The Layout": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
@@ -206,22 +204,31 @@ function Hero() {
   );
 }
 
+interface ModelViewerElement extends HTMLElement {
+  src: string;
+  autoRotate: boolean;
+  cameraControls: boolean;
+  shadowIntensity: string;
+  environmentImage: string;
+  loading: string;
+}
+
 function ModelViewer3D({ src, onLoad, loaded }: { src: string; onLoad: () => void; loaded: boolean }) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<ModelViewerElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const handler = () => onLoad();
     el.addEventListener("load", handler);
-    (el as any).src = src;
-    (el as any).autoRotate = true;
-    (el as any).cameraControls = true;
-    (el as any).shadowIntensity = "0.8";
-    (el as any).environmentImage = "neutral";
-    (el as any).loading = "eager";
+    el.src = src;
+    el.autoRotate = true;
+    el.cameraControls = true;
+    el.shadowIntensity = "0.8";
+    el.environmentImage = "neutral";
+    el.loading = "eager";
     return () => el.removeEventListener("load", handler);
   }, [src, onLoad]);
-  // @ts-ignore
+  // @ts-expect-error — model-viewer is a custom element not fully typed in JSX
   return <model-viewer ref={ref} alt="Interactive 3D model" className={`w-full h-full transition-opacity duration-700 ${loaded ? "opacity-100" : "opacity-0"}`} />;
 }
 
