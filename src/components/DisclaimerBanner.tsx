@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const BANNER_HEIGHT = 48;
@@ -21,19 +21,21 @@ function getDismissedServerSnapshot(): null {
 }
 
 export default function DisclaimerBanner() {
-  // useSyncExternalStore avoids calling setState in an effect to read localStorage
-  const dismissed = useSyncExternalStore(
+  // useSyncExternalStore reads the initial dismissed state from localStorage without
+  // calling setState in an effect, and keeps in sync if another tab dismisses the banner.
+  const storedDismissed = useSyncExternalStore(
     subscribeToStorage,
     getDismissedSnapshot,
     getDismissedServerSnapshot
   );
-  const visible = dismissed === null;
+  // Local state tracks the in-session dismiss action so the exit animation plays correctly
+  const [localDismissed, setLocalDismissed] = useState(false);
+  const visible = !localDismissed && storedDismissed === null;
 
   const handleDismiss = useCallback(() => {
     localStorage.setItem("railway-disclaimer-dismissed", "1");
     document.documentElement.style.setProperty("--banner-h", "0px");
-    // Notify the store subscriber so useSyncExternalStore re-reads in this tab
-    window.dispatchEvent(new StorageEvent("storage"));
+    setLocalDismissed(true);
   }, []);
 
   return (

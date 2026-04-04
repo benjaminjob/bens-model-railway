@@ -251,7 +251,7 @@ function ModelViewer3D({ src, onLoad, loaded }: { src: string; onLoad: () => voi
     el.loading = "eager";
     return () => el.removeEventListener("load", handler);
   }, [src, onLoad]);
-  // @ts-expect-error — model-viewer is a custom element not in standard typings
+  // @ts-expect-error — model-viewer is a custom element not in standard TypeScript types
   return <model-viewer ref={ref} alt="Interactive 3D model" className={`w-full h-full transition-opacity duration-700 ${loaded ? "opacity-100" : "opacity-0"}`} />;
 }
 
@@ -486,7 +486,8 @@ function Footer() {
 export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
   const { isMuted, setIsMuted, hasDecided } = useSound();
-  // Initialise from context so we don't call setState inside an effect
+  // Lazy initializer reads hasDecided once at mount — avoids an effect-based setState
+  // and ensures the consent modal only shows when the user hasn't yet made a sound choice.
   const [showConsent, setShowConsent] = useState(() => !hasDecided);
   // Keep a ref so the sound effect can read the latest isMuted without adding it to deps
   const isMutedRef = useRef(isMuted);
