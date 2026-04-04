@@ -331,6 +331,8 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   
   // Use useState (lazy initialiser) instead of useMemo so Date.now() is not
   // called during render (which violates the React Compiler's purity rules).
+  // A fresh random layout on each mount is intentional — the user can re-mount
+  // to get a different layout via the selector.
   const [randomLayout] = useState(() => genLayout(Date.now()));
   
   const trackParts = trackMode === 'default'

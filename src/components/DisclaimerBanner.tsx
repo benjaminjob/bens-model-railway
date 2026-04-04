@@ -16,7 +16,7 @@ function getDismissedSnapshot(): string | null {
   return localStorage.getItem("railway-disclaimer-dismissed");
 }
 
-function getDismissedServerSnapshot(): null {
+function getDismissedServerSnapshot(): string | null {
   return null; // Server: treat banner as visible
 }
 

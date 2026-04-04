@@ -502,7 +502,7 @@ export default function Home() {
       audio.volume = 0.2;
       audio.play().catch(() => {});
     }
-  }, [hasDecided]); // isMuted intentionally read via ref to avoid restarting the effect
+  }, [hasDecided]); // Runs once when hasDecided becomes true; isMuted read via ref to avoid re-runs on mute changes
 
   // Set up section intersection observer once on mount
   useEffect(() => {
