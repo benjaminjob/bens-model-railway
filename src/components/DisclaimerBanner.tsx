@@ -15,7 +15,14 @@ export default function DisclaimerBanner() {
     setMounted(true);
     const dismissed = localStorage.getItem("railway-disclaimer-dismissed");
     if (!dismissed) setVisible(true);
+    document.documentElement.style.setProperty("--banner-h", dismissed ? "0px" : "48px");
   }, []);
+
+  const handleDismiss = () => {
+    setVisible(false);
+    localStorage.setItem("railway-disclaimer-dismissed", "1");
+    document.documentElement.style.setProperty("--banner-h", "0px");
+  };
 
   // Don't render until mounted to avoid hydration mismatch
   if (!mounted) return <div style={{ height: `${BANNER_HEIGHT}px` }} />;
@@ -55,10 +62,7 @@ export default function DisclaimerBanner() {
                   </p>
                 </div>
                 <button
-                  onClick={() => {
-                    setVisible(false);
-                    localStorage.setItem("railway-disclaimer-dismissed", "1");
-                  }}
+                  onClick={handleDismiss}
                   className="text-amber-400/60 hover:text-amber-200 transition-colors flex-shrink-0"
                   aria-label="Dismiss disclaimer"
                 >

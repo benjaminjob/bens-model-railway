@@ -62,16 +62,22 @@ const GALLERY_ITEMS = [
 function Nav({ active }: { active: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [bannerVisible, setBannerVisible] = useState(true);
   const whistleRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => { whistleRef.current = new Audio("/sounds/train-move.mp3"); whistleRef.current.volume = 0.12; }, []);
-  useEffect(() => { const onScroll = () => setScrolled(window.scrollY > 40); window.addEventListener("scroll", onScroll, { passive: true }); return () => window.removeEventListener("scroll", onScroll); }, []);
+  useEffect(() => {
+    setBannerVisible(!localStorage.getItem("railway-disclaimer-dismissed"));
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const links = [
     { id: "home", label: "Home" }, { id: "layout", label: "The Layout" }, { id: "journal", label: "Build Journal" },
-    { id: "renders", label: "3D Renders" }, { page: "/real-railways", label: "Real Railways" }, { id: "software", label: "Software" },
+    { id: "renders", label: "3D Renders" }, { page: "/real-railways", label: "Real Railways" }, { id: "software", label: "Software & Hardware" },
   ];
   const playWhistle = () => { if (whistleRef.current) { whistleRef.current.currentTime = 0; whistleRef.current.play().catch(() => {}); } };
   return (
-    <motion.nav className={`fixed top-0 left-0 right-0 z-[9998] transition-all duration-300 ${scrolled ? "nav-blur bg-railway-bg/80 border-b border-railway-border/50" : "bg-transparent"}`}
+    <motion.nav className={`fixed left-0 right-0 z-[9998] transition-all duration-300 ${scrolled ? "nav-blur bg-railway-bg/80 border-b border-railway-border/50" : "bg-transparent"}`} style={{ top: bannerVisible ? "48px" : "0" }}
       initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <span className="font-heading text-lg font-bold text-railway-accent tracking-wide">Ben&apos;s Model Railway</span>
@@ -195,7 +201,7 @@ function TheLayout() {
                 <div><h3 className="font-heading text-lg font-bold text-railway-text">2D Track Plan</h3><p className="text-railway-muted text-xs mt-0.5">Oval main line with station &amp; sidings</p></div>
                 <div className="w-2 h-2 rounded-full bg-green-400" style={{ animation: "glowPulse 2s ease-in-out infinite" }}/>
               </div>
-              <div className="px-4 pb-4"><div dangerouslySetInnerHTML={{ __html: TRACK_PLAN_SVG }} className="w-full rounded-xl overflow-hidden" style={{ background: "#0a0d15" }}/></div>
+              <div className="px-4 pb-4"><div dangerouslySetInnerHTML={{ __html: TRACK_PLAN_SVG }} className="w-full rounded-xl overflow-hidden aspect-[16/9]" style={{ background: "#0a0d15", minHeight: "220px" }}/></div>
               <div className="px-6 pb-5 flex flex-wrap gap-3 text-xs text-railway-muted">
                 <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-railway-accent rounded-full inline-block"/> Running rail</span>
                 <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-railway-accent/40 inline-block"/> Sleeper</span>

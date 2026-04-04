@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import DisclaimerBanner from "@/components/DisclaimerBanner";
+import InteractiveTrain from "@/components/InteractiveTrain";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,6 +31,16 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <head>
         <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var dismissed = localStorage.getItem('railway-disclaimer-dismissed');
+                document.documentElement.style.setProperty('--banner-h', dismissed ? '0px' : '48px');
+              })();
+            `,
+          }}
+        />
+        <script
           type="module"
           src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"
         />
@@ -40,9 +51,10 @@ export default function RootLayout({
       </head>
       <body
         className={`${inter.variable} ${playfair.variable} font-body bg-railway-bg text-railway-text antialiased`}
-        style={{ paddingTop: "48px" }}
+        style={{ paddingTop: "var(--banner-h, 48px)" }}
       >
         <DisclaimerBanner />
+        <InteractiveTrain />
         {children}
         <Analytics />
       </body>
