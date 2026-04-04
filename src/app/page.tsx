@@ -58,7 +58,7 @@ const GALLERY_ITEMS = [
   { src: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80", alt: "Steam locomotive at platform", span: "col-span-2 row-span-2" },
   { src: "https://images.unsplash.com/photo-1527684651001-731c474bbb5a?w=600&q=80", alt: "Historic railway station", span: "" },
   { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80", alt: "Detailed railway scenery", span: "" },
-  { src: "https://images.unsplash.com/photo-1508161820330-3a2b3e3f8a88?w=600&q=80", alt: "Model railway track work", span: "" },
+  { src: "https://images.unsplash.com/photo-1519677584237-752f8853252e?w=600&q=80", alt: "Model railway track work", span: "" },
   { src: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=600&q=80", alt: "Railway viaduct in landscape", span: "col-span-2" },
 ];
 
