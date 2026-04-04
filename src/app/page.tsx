@@ -88,12 +88,14 @@ function Nav({ active }: { active: string }) {
       initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <span className="font-heading text-lg font-bold text-railway-accent tracking-wide">Ben&apos;s Model Railway</span>
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-1.5">
           {links.map((l) => (
             <a key={l.label} href={l.page ?? `#${l.id}`} onClick={playNavClick}
-              className={`relative px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-200 ${active === l.id ? "text-railway-accent" : "text-railway-muted hover:text-railway-text"}`}>
-              {active === l.id && <motion.div layoutId="nav-indicator" className="absolute inset-0 bg-railway-accent/10 border border-railway-accent/30 rounded-full" transition={{ type: "spring", stiffness: 400, damping: 30 }}/>}
+              className={`relative px-4 py-2 text-xs font-semibold tracking-wide rounded-xl transition-all duration-200 ${active === l.id ? "text-railway-accent bg-railway-accent/10" : "text-railway-muted hover:text-railway-text hover:bg-white/5"}`}>
               <span className="relative z-10">{l.label}</span>
+              {active === l.id && (
+                <motion.div layoutId="nav-indicator" className="absolute inset-0 border border-railway-accent/30 rounded-xl bg-railway-accent/5" transition={{ type: "spring", stiffness: 400, damping: 30 }}/>
+              )}
             </a>
           ))}
         </div>
@@ -102,18 +104,44 @@ function Nav({ active }: { active: string }) {
         </button>
       </div>
       <AnimatePresence>{menuOpen && (
-        <motion.div initial={{ opacity: 0, y: -10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -10, scale: 0.98 }}
-          className="absolute top-[calc(100%+12px)] left-4 right-4 md:hidden">
-          <div className="bg-railway-surface/90 backdrop-blur-xl border border-railway-border/50 rounded-3xl p-3 shadow-2xl shadow-black/40 flex flex-col gap-1 ring-1 ring-white/10">
-            {links.map((l) => (
-              <a key={l.label} href={l.page ?? `#${l.id}`} onClick={() => { playNavClick(); setMenuOpen(false); }}
-                className={`flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 group ${active === l.id ? "bg-railway-accent/10 text-railway-accent shadow-inner" : "text-railway-muted hover:bg-white/5 hover:text-railway-text"}`}>
-                <span className="text-sm font-semibold tracking-wide">{l.label}</span>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${active === l.id ? "bg-railway-accent text-railway-bg" : "bg-white/5 text-railway-muted group-hover:bg-railway-accent/20 group-hover:text-railway-accent"}`}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
-              </a>
-            ))}
+        <motion.div initial={{ opacity: 0, y: -20, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -10, scale: 0.96 }}
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute top-[calc(100%+16px)] left-4 right-4 md:hidden">
+          <div className="bg-railway-bg/95 backdrop-blur-2xl border border-railway-border rounded-2xl shadow-2xl shadow-black/60 overflow-hidden">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-railway-border/50 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-widest text-railway-muted">Navigation</span>
+              <div className="w-2 h-2 rounded-full bg-railway-accent animate-pulse"/>
+            </div>
+            {/* Links */}
+            <div className="p-2 pb-3">
+              {links.map((l, i) => {
+                const icons: { [key: string]: React.ReactNode } = {
+                  Home: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+                  "The Layout": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
+                  "Build Journal": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+                  "3D Renders": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>,
+                  "Real Railways": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16"/><path d="M3 21h18"/><path d="M9 7h1"/><path d="M9 11h1"/><path d="M9 15h1"/><path d="M14 7h1"/><path d="M14 11h1"/><path d="M14 15h1"/></svg>,
+                  "Software & Hardware": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>,
+                };
+                const isActive = active === l.id;
+                return (
+                  <a key={l.label} href={l.page ?? `#${l.id}`} onClick={() => { playNavClick(); setMenuOpen(false); }}
+                    className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 group ${isActive ? "bg-railway-accent/15 text-railway-accent" : "text-railway-text hover:bg-white/5"}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${isActive ? "bg-railway-accent text-railway-bg shadow-lg shadow-railway-accent/30" : "bg-white/5 text-railway-muted group-hover:bg-railway-accent/10 group-hover:text-railway-accent"}`}>
+                      {icons[l.label]}
+                    </div>
+                    <div className="flex-1">
+                      <span className={`text-sm font-semibold tracking-wide block ${isActive ? "text-railway-accent" : ""}`}>{l.label}</span>
+                      {isActive && <span className="text-[10px] uppercase tracking-wider text-railway-accent/70">Current section</span>}
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-railway-muted/40 transition-transform duration-200 group-hover:translate-x-1 ${isActive ? "text-railway-accent/50" : ""}`}>
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </a>
+                );
+              })}
+            </div>
           </div>
         </motion.div>
       )}</AnimatePresence>

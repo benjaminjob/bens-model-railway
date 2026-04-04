@@ -367,46 +367,53 @@ function Nav({ active }: { active: string }) {
     bell.play().catch(() => {});
   }, []);
   const links = [
-    { id: "cornish-main", label: "Cornish Main Line" },
-    { id: "hayle", label: "Hayle Area" },
-    { id: "helston", label: "Helston Branch" },
-    { id: "plymouth", label: "Plymouth & Devon" },
-    { id: "other", label: "Other Branches" },
+    { id: "cornish-main", label: "Cornish Main Line", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg> },
+    { id: "hayle", label: "Hayle Area", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg> },
+    { id: "helston", label: "Helston Branch", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg> },
+    { id: "plymouth", label: "Plymouth & Devon", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg> },
+    { id: "other", label: "Other Branches", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg> },
   ];
 
   return (
-    <nav className="sticky top-0 z-40 bg-railway-bg/95 backdrop-blur-md border-b border-railway-border/50 py-3 mb-8">
+    <nav className="sticky top-0 z-40 bg-railway-bg/90 backdrop-blur-lg border-b border-railway-border/30 py-4 mb-10">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* Home button */}
           <a
             href="/"
             onClick={() => { if (navClickRef.current) { navClickRef.current.currentTime = 0; navClickRef.current.play().catch(() => {}); } }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-railway-surface border border-railway-border/50 text-railway-muted hover:text-railway-accent hover:border-railway-accent/30 transition-all duration-300 text-xs font-medium shadow-lg"
+            className="flex items-center gap-2.5 px-5 py-3 rounded-xl bg-railway-surface border border-railway-border/60 text-railway-text hover:text-railway-accent hover:border-railway-accent/40 hover:bg-railway-accent/5 transition-all duration-200 text-sm font-semibold shadow-lg shadow-black/20"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
               <polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
-            <span className="hidden sm:inline">Home</span>
+            <span>Home</span>
           </a>
           
+          {/* Divider */}
+          <div className="w-px h-8 bg-railway-border/50 mx-1"/>
+          
           {/* Section links */}
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
-            {links.map((l) => (
-              <a
-                key={l.id}
-                href={`#${l.id}`}
-                onClick={() => { if (navClickRef.current) { navClickRef.current.currentTime = 0; navClickRef.current.play().catch(() => {}); } }}
-                className={`whitespace-nowrap text-xs px-4 py-2 rounded-xl transition-all duration-300 ${
-                  active === l.id
-                    ? "bg-railway-accent text-railway-bg font-bold shadow-lg shadow-railway-accent/20"
-                    : "text-railway-muted hover:text-railway-accent hover:bg-white/5"
-                }`}
-              >
-                {l.label}
-              </a>
-            ))}
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 pb-1">
+            {links.map((l) => {
+              const isActive = active === l.id;
+              return (
+                <a
+                  key={l.id}
+                  href={`#${l.id}`}
+                  onClick={() => { if (navClickRef.current) { navClickRef.current.currentTime = 0; navClickRef.current.play().catch(() => {}); } }}
+                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-200 ${
+                    isActive
+                      ? "bg-railway-accent text-railway-bg shadow-lg shadow-railway-accent/25"
+                      : "text-railway-muted hover:text-railway-accent hover:bg-railway-accent/8"
+                  }`}
+                >
+                  <span>{l.label}</span>
+                  {isActive && <span className="opacity-70">{l.icon}</span>}
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>
