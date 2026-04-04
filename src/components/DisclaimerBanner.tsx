@@ -1,31 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const BANNER_HEIGHT = 48;
 
 export { BANNER_HEIGHT };
 
-export default function DisclaimerBanner() {
-  const [visible, setVisible] = useState(false);
-  const [mounted, setMounted] = useState(false);
+function subscribe(callback: () => void) {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
 
+function getSnapshot() {
+  return localStorage.getItem("railway-disclaimer-dismissed") === null;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
+export default function DisclaimerBanner() {
+  const storageVisible = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [dismissed, setDismissed] = useState(false);
+  const visible = storageVisible && !dismissed;
+
+  // Update the CSS variable that controls body padding when visibility changes
   useEffect(() => {
-    setMounted(true);
-    const dismissed = localStorage.getItem("railway-disclaimer-dismissed");
-    if (!dismissed) setVisible(true);
-    document.documentElement.style.setProperty("--banner-h", dismissed ? "0px" : "48px");
-  }, []);
+    document.documentElement.style.setProperty("--banner-h", visible ? "48px" : "0px");
+  }, [visible]);
 
   const handleDismiss = () => {
-    setVisible(false);
     localStorage.setItem("railway-disclaimer-dismissed", "1");
-    document.documentElement.style.setProperty("--banner-h", "0px");
+    setDismissed(true);
   };
-
-  // Don't render until mounted to avoid hydration mismatch
-  if (!mounted) return <div style={{ height: `${BANNER_HEIGHT}px` }} />;
 
   return (
     <>

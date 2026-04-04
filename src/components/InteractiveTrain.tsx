@@ -11,10 +11,8 @@ import { useSound } from "@/context/SoundContext";
 // Standard radii: 371mm (1st), 438mm (2nd), 505mm (3rd), 571.5mm (4th)
 // ============================================
 
-const MM = 0.2; // 1 unit = 5mm real → 1mm = 0.2 SVG units
-const TRACK_GAP = Math.round(67 * MM); // 13 units
-
-// ──────────────────────────────────────────────
+// Seed is generated once at module load time so it stays stable across re-renders
+const RANDOM_SEED = Date.now();
 
 // ──────────────────────────────────────────────
 // LAYOUT 1: Grand Oval with Extended Network
@@ -274,7 +272,6 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   const mainPathRef = useRef<SVGPathElement>(null);
   const branchPathRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const initialized = useRef(false);
   
   const [trackMode, setTrackMode] = useState<'default' | 'random'>('default');
   const [trainPos, setTrainPos] = useState({ x: 0, y: 0 });
@@ -321,7 +318,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   const branchLength = useRef(0);
   const totalLength = useRef(0);
   
-  const randomLayout = useMemo(() => genLayout(Date.now()), []);
+  const randomLayout = useMemo(() => genLayout(RANDOM_SEED), []);
   
   const trackParts = trackMode === 'default'
     ? [
@@ -336,24 +333,25 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
     ? [{ x: 400, y: 160, label: 'STATION' }]
     : randomLayout.stations;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const saved = localStorage.getItem('railway-track-mode');
-    if (saved === 'random' || saved === 'default') setTrackMode(saved);
-    
-    // Force initial rect update after mount so train positions correctly from start
-    setTimeout(() => updateSvgRect(), 0);
-  }, []);
-
-  const handleModeChange = useCallback((mode: 'default' | 'random') => {
-    setTrackMode(mode);
-    localStorage.setItem('railway-track-mode', mode);
-  }, []);
-
   const updateSvgRect = useCallback(() => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     setSvgRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem('railway-track-mode');
+    // Wrap in setTimeout to avoid calling setState directly in the effect body
+    if (saved === 'random' || saved === 'default') setTimeout(() => setTrackMode(saved), 0);
+    
+    // Force initial rect update after mount so train positions correctly from start
+    setTimeout(() => updateSvgRect(), 0);
+  }, [updateSvgRect]);
+
+  const handleModeChange = useCallback((mode: 'default' | 'random') => {
+    setTrackMode(mode);
+    localStorage.setItem('railway-track-mode', mode);
   }, []);
 
   useEffect(() => {
@@ -399,7 +397,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
       const { point: nextPoint } = getPointAtProgress(Math.min(p + delta, 0.9999));
       const dx = nextPoint.x - point.x;
       const dy = nextPoint.y - point.y;
-      let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
       // Flip train SVG when moving left so front faces correct direction
       const flipX = dx >= 0 ? 1 : -1;
       const scaleX = svgRect.width / 800;
@@ -427,7 +425,6 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
       }
       animFrame.current = requestAnimationFrame(animate);
     };
-
     const handleMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging) return;
       const svgEl = svgRef.current;
@@ -501,8 +498,8 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
     window.addEventListener('resize', updateSvgRect, { passive: true });
     window.addEventListener('scroll', updateSvgRect, { passive: true });
 
-    animFrame.current = requestAnimationFrame(animate);
-    setVisible(true);
+    // Start animation and show train via RAF callback to avoid direct setState in effect body
+    animFrame.current = requestAnimationFrame(() => { setVisible(true); animFrame.current = requestAnimationFrame(animate); });
 
     window.addEventListener("mousemove", handleMove, { passive: true });
     window.addEventListener("touchmove", handleMove, { passive: true });
@@ -676,7 +673,6 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
               const ballastColor = isMain ? '#3a3a4a' : '#323240';
               const railColor = '#d4a843';
               const sw = part.trackWidth;
-              const railW = Math.max(sw - (isMain ? 16 : 12), 4);
               
               return (
                 <g key={idx}>
