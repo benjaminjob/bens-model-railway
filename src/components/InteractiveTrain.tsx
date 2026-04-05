@@ -289,14 +289,14 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   // Keep refs in sync with state so interval can read current values
   const trainAngleRef = useRef(trainAngle);
   const trainPosRef = useRef(trainPos);
-  const isMutedRef = useRef(isMuted);
   useEffect(() => { trainAngleRef.current = trainAngle; }, [trainAngle]);
   useEffect(() => { trainPosRef.current = trainPos; }, [trainPos]);
-  useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
   const [smokeParticles, setSmokeParticles] = useState<Array<{ id: number; x: number; y: number; age: number }>>([]);
   const [activeSignals, setActiveSignals] = useState<Set<string>>(new Set());
   const smokeId = useRef(0);
   const { isMuted } = useSound();
+  const isMutedRef = useRef(isMuted);
+  useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
 
   // Signal positions on the default oval layout
   const SIGNAL_POSITIONS = [
