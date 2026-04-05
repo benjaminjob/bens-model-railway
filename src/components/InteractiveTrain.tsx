@@ -437,21 +437,16 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
       // Angle from atan2 gives direction from current point to next point.
       let angle = Math.atan2(dy, dx) * (180 / Math.PI);
       if (isRev) angle += 180;
-      // SVG faces right. The oval goes counterclockwise.
-      // Bottom (y>200, moving left): rotate(180) makes train upside-down.
-      // Fix: use rotate(0) + scaleX(-1) — this gives the same final orientation as 
-      // rotate(180) alone but without the upside-down. rotate(0)*scaleX(-1) = rotate(180)*scaleX(1).
-      // All other positions: pure rotation works correctly.
-      const isBottom = point.y > 200;
-      const flipX = isBottom ? -1 : 1;
-      const effectiveAngle = isBottom ? 0 : angle;
+      // SVG faces right with smokebox/chimney at FRONT (right side), cowcatcher/cab at BACK (left side).
+      // Pure rotation works correctly at all 4 positions — no flipping needed.
+      const flipX = 1;
       const scaleX = svgRect.width / 800;
       const scaleY = svgRect.height / 400;
       const pixelX = point.x * scaleX;
       const pixelY = point.y * scaleY;
       
       setTrainPos({ x: pixelX, y: pixelY });
-      setTrainAngle(effectiveAngle);
+      setTrainAngle(angle);
       setTrainScaleX(flipX);
       
       const now = Date.now();
@@ -831,15 +826,14 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
             }}
           >
             <svg viewBox="0 0 70 30" fill="none">
-              {/* Boiler — faces RIGHT */}
+              {/* Boiler — faces RIGHT, FRONT=smokebox/chimney, BACK=cowcatcher/cab */}
               <ellipse cx="38" cy="17" rx="24" ry="10" fill="url(#engineBoilerR)"/>
               <ellipse cx="50" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
               <ellipse cx="42" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
               <ellipse cx="32" cy="17" rx="0.8" ry="9" fill="#b8942f" opacity="0.7"/>
-              {/* Smokebox */}
+              {/* Smokebox + Chimney — FRONT (right side) */}
               <rect x="52" y="9" width="12" height="16" rx="2" fill="url(#smokeboxGradR)"/>
               <ellipse cx="62" cy="17" rx="4" ry="8" fill="#1a1d28"/>
-              {/* Chimney */}
               <rect x="54" y="2" width="8" height="10" rx="1" fill="url(#chimneyEngineGradR)"/>
               <rect x="53" y="1" width="10" height="3" rx="1" fill="#c9a033"/>
               <rect x="55" y="0" width="6" height="2" rx="0.5" fill="#d4a843"/>
@@ -848,11 +842,19 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
               {/* Safety valves */}
               <rect x="26" y="4" width="3" height="5" rx="0.5" fill="#b8942f"/>
               <rect x="22" y="4" width="3" height="5" rx="0.5" fill="#b8942f"/>
-              {/* Cab */}
+              {/* Cab — BACK (left side) */}
               <rect x="4" y="7" width="16" height="20" rx="2" fill="url(#cabEngineGradR)"/>
               <rect x="7" y="10" width="10" height="7" rx="1" fill="#0a0d15" opacity="0.9"/>
               <rect x="2" y="5" width="20" height="3" rx="1" fill="#a07c2a"/>
-              {/* Wheels — rightmost=front (cowcatcher side) */}
+              {/* Cowcatcher — BACK (left side, mirrored from right) */}
+              <path d="M 2 20 L 0 26 L 4 26 L 6 23 Z" fill="#c9a033"/>
+              <line x1="1" y1="21" x2="1.5" y2="26" stroke="#8a7020" strokeWidth="0.5"/>
+              <line x1="3" y1="20" x2="3.5" y2="26" stroke="#8a7020" strokeWidth="0.5"/>
+              {/* Headlight — BACK (left side, mirrored from right) */}
+              <circle cx="2" cy="14" r="2.5" fill="#fffbe6"/>
+              <circle cx="2" cy="14" r="1.8" fill="#ffeb3b"/>
+              <circle cx="2" cy="14" r="0.8" fill="#fff"/>
+              {/* Wheels — rightmost=front (smokebox side), leftmost=back (cowcatcher side) */}
               <circle cx="60" cy="25" r="4" fill="#1a1d28"/>
               <circle cx="60" cy="25" r="3.2" fill="#2a2a3a"/>
               <circle cx="60" cy="25" r="1.2" fill="#d4a843"/>
@@ -862,16 +864,8 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
               <circle cx="34" cy="25" r="5" fill="#1a1d28"/>
               <circle cx="34" cy="25" r="4" fill="#2a2a3a"/>
               <circle cx="34" cy="25" r="1.5" fill="#d4a843"/>
-              {/* Coupling rods — centered on wheel axle at y=25 */}
+              {/* Coupling rods */}
               <rect x="34" y="24" width="26" height="2" rx="1" fill="#b8942f"/>
-              {/* Cowcatcher — RIGHT side (front) */}
-              <path d="M 68 20 L 70 26 L 66 26 L 64 23 Z" fill="#c9a033"/>
-              <line x1="69" y1="21" x2="68.5" y2="26" stroke="#8a7020" strokeWidth="0.5"/>
-              <line x1="67" y1="20" x2="66.5" y2="26" stroke="#8a7020" strokeWidth="0.5"/>
-              {/* Headlight — RIGHT side (front) */}
-              <circle cx="68" cy="14" r="2.5" fill="#fffbe6"/>
-              <circle cx="68" cy="14" r="1.8" fill="#ffeb3b"/>
-              <circle cx="68" cy="14" r="0.8" fill="#fff"/>
               {/* Gradients */}
               <defs>
                 <linearGradient id="engineBoilerR" x1="62" y1="7" x2="62" y2="27" gradientUnits="userSpaceOnUse">
