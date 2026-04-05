@@ -437,8 +437,12 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
       // Angle from atan2 gives direction from current point to next point.
       let angle = Math.atan2(dy, dx) * (180 / Math.PI);
       if (isRev) angle += 180;
-      // No flipping needed — pure rotation handles all positions correctly.
-      const flipX = 1;
+      // Pure rotation works for top (moving right) and right side (moving down).
+      // Bottom (moving left): train appears upside-down, needs scaleX=-1 to correct.
+      // Left side (moving up): pure rotation handles this correctly.
+      // Detect bottom by checking if train is in the lower half of the oval (y > center).
+      const isBottom = point.y > 200;
+      const flipX = isBottom ? -1 : 1;
       const scaleX = svgRect.width / 800;
       const scaleY = svgRect.height / 400;
       const pixelX = point.x * scaleX;
