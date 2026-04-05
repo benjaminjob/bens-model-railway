@@ -436,9 +436,9 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
       // direction — add 180° so the engine faces forward.
       let angle = Math.atan2(dy, dx) * (180 / Math.PI);
       if (isRev) angle += 180;
-      // flipX based on angle: when cos(angle) >= 0 (right half of oval), flip so chimney leads
-      const radAngle = (angle * Math.PI) / 180;
-      const flipX = Math.cos(radAngle) >= 0 ? -1 : 1;
+      // Simple orientation: train follows the path rotation. 
+      // If the SVG faces right, rotate(angle) aligns it perfectly with the direction of travel.
+      const flipX = 1;
       const scaleX = svgRect.width / 800;
       const scaleY = svgRect.height / 400;
       const pixelX = point.x * scaleX;
