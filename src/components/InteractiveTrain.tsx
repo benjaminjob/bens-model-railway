@@ -289,8 +289,10 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   // Keep refs in sync with state so interval can read current values
   const trainAngleRef = useRef(trainAngle);
   const trainPosRef = useRef(trainPos);
+  const isMutedRef = useRef(isMuted);
   useEffect(() => { trainAngleRef.current = trainAngle; }, [trainAngle]);
   useEffect(() => { trainPosRef.current = trainPos; }, [trainPos]);
+  useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
   const [smokeParticles, setSmokeParticles] = useState<Array<{ id: number; x: number; y: number; age: number }>>([]);
   const [activeSignals, setActiveSignals] = useState<Set<string>>(new Set());
   const smokeId = useRef(0);
@@ -354,7 +356,7 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
     updateRect();
 
     const doAutoWhistle = () => {
-      if (isMuted) return;
+      if (isMutedRef.current) return;
       const rad = (trainAngleRef.current * Math.PI) / 180;
       const aheadDist = 22, smokeRise = 20;
       const px = trainPosRef.current.x + Math.cos(rad) * aheadDist;
@@ -362,11 +364,12 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
       const newParts: Array<{ id: number; x: number; y: number; age: number }> = [];
       for (let i = 0; i < 10; i++) newParts.push({ id: ++smokeId.current, x: px, y: py, age: 0 });
       setSmokeParticles(prev => [...prev, ...newParts]);
-      const w = new Audio("/sounds/whistle.mp3");
-      w.volume = 0.12;
+      // Use cta-whistle (shorter, cleaner) at low volume
+      const w = new Audio("/sounds/cta-whistle.mp3");
+      w.volume = 0.08;
       w.play().catch(() => {});
       // Increase interval: 30s → 1m → 2m → 3m → 5m → 10m → 20m → 30m (max)
-      const intervals = [60000, 120000, 180000, 300000, 600000, 1200000, 1800000];
+      const intervals = [30000, 60000, 120000, 180000, 300000, 600000, 1200000, 1800000];
       const idx = intervals.indexOf(autoIntervalRef.current);
       autoIntervalRef.current = idx >= 0 && idx < intervals.length - 1 ? intervals[idx + 1] : 1800000;
       if (autoTimerRef.current) clearInterval(autoTimerRef.current);
@@ -517,8 +520,8 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
         a.play().catch(() => {});
         // Play whistle on click (quieter)
         if (!isMuted) {
-          const w = new Audio("/sounds/whistle.mp3");
-          w.volume = 0.12;
+          const w = new Audio("/sounds/cta-whistle.mp3");
+          w.volume = 0.08;
           w.play().catch(() => {});
         }
         // Spawn smoke at chimney (front of train = ahead of center along travel direction)
