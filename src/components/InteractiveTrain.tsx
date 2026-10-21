@@ -350,6 +350,8 @@ export default function InteractiveTrain({ showControls = true }: InteractiveTra
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saved = localStorage.getItem('railway-track-mode');
+    // Restoring a client-only preference after hydration; reading localStorage during render would cause an SSR mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved === 'random' || saved === 'default') setTrackMode(saved);
 
     const updateRect = () => { if (svgRef.current) { const r = svgRef.current.getBoundingClientRect(); setSvgRect({ left: r.left, top: r.top, width: r.width, height: r.height }); } };
